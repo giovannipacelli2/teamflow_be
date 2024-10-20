@@ -9,9 +9,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-use App\Models\Role;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Ramsey\Uuid\Uuid;
 
@@ -34,10 +31,10 @@ class Account extends Authenticatable implements JWTSubject
     
     /*------------------------------------RELATION-------------------------------------*/
 
-    /* public function diets(): HasMany
+    public function todos(): HasMany
     {
-        return $this->hasMany(Diet::class);
-    } */
+        return $this->hasMany(Todo::class);
+    }
 
 
     /*-----------------------------------PERMISSIONS-----------------------------------*/
@@ -49,16 +46,6 @@ class Account extends Authenticatable implements JWTSubject
         }
         return false;
     }
-
-    /* public function hisPatient($patientId) : bool {
-
-        $check = $this->patients()->where('id', $patientId)->get()->toArray();
-
-        if ($check) {
-            return true;
-        }
-        return false;
-    } */
 
     /*----------------------------------STATIC-METHODS---------------------------------*/
 

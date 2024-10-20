@@ -4,17 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
-use App\Http\Controllers\PatientController;
-use App\Http\Controllers\CheckController;
-use App\Http\Controllers\CircumferenceController;
-use App\Http\Controllers\PlicometryController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\DietController;
-use App\Http\Controllers\DietModelController;
-use App\Http\Controllers\FoodController;
-use App\Http\Controllers\PhaseController;
-use App\Http\Controllers\PhaseModelController;
+use App\Http\Controllers\TodoController;
 
 /**
  *  @OA\Info(
@@ -56,4 +46,12 @@ Route::controller(AccountController::class)->middleware(['jwt.auth'])->group(fun
     Route::post('account', 'createAccount');
     Route::put('account/{accountId}', 'updateAccount');
     Route::delete('account/{accountId}', 'deleteAccount');
+});
+
+Route::controller(TodoController::class)->middleware(['jwt.auth'])->group(function () {
+    Route::get('todo/all', 'getAllTodos');
+    Route::get('todo/{todoId}', 'getTodo');
+    Route::post('todo', 'createTodo');
+    Route::put('todo/{todoId}', 'updateTodo');
+    Route::delete('todo/{todoId}', 'deleteTodo');
 });
