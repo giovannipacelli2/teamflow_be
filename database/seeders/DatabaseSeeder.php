@@ -14,10 +14,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $account = new AccountSeeder();
+        $todo = new TodoSeeder();
 
 
         // RUN
 
         $account->run();
+        $todo->run();
     }
 }
