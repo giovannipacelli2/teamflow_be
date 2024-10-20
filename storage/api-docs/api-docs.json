@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "DietaIntegrata",
+        "title": "S2I final",
         "version": "0.8"
     },
     "servers": [

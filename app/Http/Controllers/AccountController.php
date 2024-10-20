@@ -16,7 +16,7 @@ use App\Translations\Translations;
 
 /**
  *  @OA\Info(
- *      title="DietaIntegrata", 
+ *      title="S2I final", 
  *      version="0.8",
  *  ),
  *  
