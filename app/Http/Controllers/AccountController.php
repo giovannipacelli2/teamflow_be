@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 use App\Models\Account;
-use App\Models\Role;
 
 // Custom static class
 use App\Include\ApiFunctions;
@@ -761,25 +760,6 @@ use App\Translations\Translations;
  *         type="string", 
  *         example="agent@dev.com", 
  *     ), 
- *     @OA\Property(
- *         property="author", 
- *         type="string", 
- *         example="DB_admin", 
- *     ), 
- *     @OA\Property(
- *         property="role", 
- *         type="object", 
- *         @OA\Property(
- *             property="id", 
- *             type="string", 
- *             example="9a7372d5-a621-4b56-b811-affa3818d099", 
- *         ), 
- *         @OA\Property(
- *             property="roleName", 
- *             type="string", 
- *             example="agent", 
- *         ), 
- *     ),
  *   },
  * ),
  * 
@@ -922,11 +902,6 @@ use App\Translations\Translations;
  *        type="string", 
  *        example="abc1234", 
  *    ), 
- *    @OA\Property(
- *        property="role", 
- *        type="string", 
- *        example="nutritionist", 
- *    ),
  * }),
  *  
  * @OA\Get(
@@ -990,12 +965,19 @@ class AccountController extends Controller
 {   
     private static $MODEL_NAME_UP_FIRST = 'Account';
     private static $MODEL_NAME_LOWER = 'account';
+    private static $MODEL_CLASS = Account::class;
+    private $MODEL;
+
+    public function __construct()
+    {
+        $this->MODEL = new self::$MODEL_CLASS();
+    }
 
     public function getAllAccounts(Request $request) {
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('viewAny', Account::class)->allowed();
+        $auth = Gate::inspect('viewAny', self::$MODEL_CLASS)->allowed();
 
         if (!$auth) {
 
@@ -1009,7 +991,7 @@ class AccountController extends Controller
 
         /*--------------------------------FILTERING/SORTING--------------------------------*/
 
-        $model = Account::select('*');
+        $model = $this->MODEL->select('*');
 
         SortFilter::sortFilter($request, $model);
 
@@ -1019,18 +1001,6 @@ class AccountController extends Controller
     
             // paginate data
             $model = $model->paginate($limit)->toArray();
-
-            $result = [];
-
-            foreach ($model['data'] as $account) {
-                $a = Account::find($account['id']);
-
-                $tmp = $this->getAccountData($a, $account['id']);
-
-                array_push($result, $tmp);
-            }
-
-            $model['data'] = $result;
 
         } catch (\Exception $e) {
 
@@ -1048,7 +1018,7 @@ class AccountController extends Controller
 
         /*------------------------------CHECK-ID-FROM-REQUEST------------------------------*/
 
-        $model = Account::find($accountId);
+        $model = $this->MODEL->find($accountId);
 
         if (!$model) {
 
@@ -1058,15 +1028,13 @@ class AccountController extends Controller
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
         
-        $auth = Gate::inspect('viewSingle', [Account::class, $accountId])->allowed();
+        $auth = Gate::inspect('viewSingle', [self::$MODEL_CLASS, $accountId])->allowed();
         
         if (!$auth) {
             
             $result = ResponseJson::format([], 'Not Authorized');
             return response()->json($result, 403);
         }
-
-        $model = $this->getAccountData($model, $accountId);
 
         /*--------------------------------POSITIVE-RESPONSE--------------------------------*/
 
@@ -1078,7 +1046,7 @@ class AccountController extends Controller
 
         /*------------------------------CHECK-ID-FROM-REQUEST------------------------------*/
 
-        $model = Account::find($accountId);
+        $model = $this->MODEL->find($accountId);
 
         if (!$model) {
 
@@ -1088,7 +1056,7 @@ class AccountController extends Controller
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
         
-        $auth = Gate::inspect('viewSingleDetails', [Account::class, $accountId])->allowed();
+        $auth = Gate::inspect('viewSingleDetails', [self::$MODEL_CLASS, $accountId])->allowed();
         
         if (!$auth) {
             
@@ -1109,7 +1077,7 @@ class AccountController extends Controller
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
 
-        $auth = Gate::inspect('create', Account::class)->allowed();
+        $auth = Gate::inspect('create', self::$MODEL_CLASS)->allowed();
 
         if (!$auth) {
 
@@ -1127,7 +1095,7 @@ class AccountController extends Controller
             'password' => 'required|string|min:6',
         ];
 
-        $validationMsgs = Translations::getValidations(Account::class);
+        $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
 
         $validations = ApiFunctions::validateCreation($request, $rules, $validationMsgs);
 
@@ -1161,7 +1129,7 @@ class AccountController extends Controller
 
 
         try{
-            $created = Account::create($modelObj);
+            $created = $this->MODEL->create($modelObj);
             $lastId = [
                 'id' => $created->id
             ];
@@ -1189,7 +1157,7 @@ class AccountController extends Controller
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('update', Account::class)->allowed();
+        $auth = Gate::inspect('update', [self::$MODEL_CLASS, $accountId])->allowed();
 
         if (!$auth) {
 
@@ -1199,7 +1167,7 @@ class AccountController extends Controller
 
         /*------------------------------CHECK-ID-FROM-REQUEST------------------------------*/
 
-        $model = Account::find($accountId);
+        $model = $this->MODEL->find($accountId);
 
         if (!$model) {
 
@@ -1234,7 +1202,7 @@ class AccountController extends Controller
             'password' => 'string|min:6',
         ];
         
-        $validationMsgs = Translations::getValidations(Account::class);
+        $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
 
         $validations = ApiFunctions::validateUpdate($request, $rules, false, $validationMsgs);
 
@@ -1288,11 +1256,11 @@ class AccountController extends Controller
         return response()->json($response, 200);
     }
 
-    public function deleteAccount($userId, Request $request){
+    public function deleteAccount($accountId, Request $request){
 
         /*------------------------------CHECK-ID-FROM-REQUEST------------------------------*/
 
-        $model = Account::find($userId);
+        $model = $this->MODEL->find($accountId);
 
         if (!$model) {
 
@@ -1302,7 +1270,7 @@ class AccountController extends Controller
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('delete', [Account::class, $userId])->allowed();
+        $auth = Gate::inspect('delete', [self::$MODEL_CLASS, $accountId])->allowed();
 
         if (!$auth) {
 
@@ -1334,32 +1302,5 @@ class AccountController extends Controller
     }
 
     /*--------------------------------PRIVATE-FUNCTIONS--------------------------------*/
-
-    private function getAccountData($account, $accountId = '') : array {
-
-        /*----------------------------------GET-ACCOUNT-ROLE-------------------------------*/
-
-        $role = $account->role()->get();
-
-        if (!$role){
-            return ResponseJson::out([], 200, 'Role not found');
-        }
-
-        $role = $role->toArray()[0];
-
-
-        /*----------------------INSERT-PROCESSED-DATA-INTO-RESPONSE------------------------*/
-
-        $account = $account->where('id', $accountId)->limit(1)->get()->toArray()[0];
-
-        unset($account['role_id']);
-
-        $account['role'] = [
-            'id' => $role['id'],
-            'roleName' => $role['name'],
-        ];
-
-        return $account;
-    }
 
 }

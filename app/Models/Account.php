@@ -42,6 +42,13 @@ class Account extends Authenticatable implements JWTSubject
 
     /*-----------------------------------PERMISSIONS-----------------------------------*/
 
+    public function isAdmin() : bool {
+
+        if ($this->username === 'admin') {
+            return true;
+        }
+        return false;
+    }
 
     /* public function hisPatient($patientId) : bool {
 
@@ -59,7 +66,7 @@ class Account extends Authenticatable implements JWTSubject
 
     /*-----------------------------------VALIDATIONS-----------------------------------*/
 
-    /* private static function loadValidations(){
+    private static function loadValidations(){
         
         $translationsFile = APP_ROOT . '/app/Translations/models/accountValidations.php';
 
@@ -74,7 +81,7 @@ class Account extends Authenticatable implements JWTSubject
 
     public static function getValidations(){
         return static::loadValidations();
-    } */
+    }
 
     /*-------------------------------------FIELDS--------------------------------------*/
     
