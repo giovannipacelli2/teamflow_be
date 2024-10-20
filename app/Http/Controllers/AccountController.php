@@ -1125,7 +1125,6 @@ class AccountController extends Controller
             'email' => 'required|email|max:255|unique:accounts',
             'surname' => 'required|string|max:255',
             'password' => 'required|string|min:6',
-            'role' => 'required|string|max:20',
         ];
 
         $validationMsgs = Translations::getValidations(Account::class);
@@ -1147,17 +1146,6 @@ class AccountController extends Controller
         }
 
 
-        /*--------------------------------CHECK-ROLE-NAME----------------------------------*/
-
-        $role = Role::where('name', $data['role'])->get()->toArray();
-
-        if (!$role) {
-            $result = ResponseJson::format([], 'Incorrect field: role');
-            return response()->json($result, 400);
-        }
-
-        $roleId = $role[0]['id'];
-
         /*-------------------------------CREATE-NEW-ACCOUNT--------------------------------*/
 
         $current = Auth::user();
@@ -1169,7 +1157,6 @@ class AccountController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'author' => $current->username,
-            'role_id' => $roleId
         ];
 
 
@@ -1245,7 +1232,6 @@ class AccountController extends Controller
             'surname' => 'string|max:255',
             'email' => 'email|max:255|unique:accounts',
             'password' => 'string|min:6',
-            'role' => 'string|max:20',
         ];
         
         $validationMsgs = Translations::getValidations(Account::class);
@@ -1275,21 +1261,6 @@ class AccountController extends Controller
 
         if (isset($data['password'])){
             $data['password'] = Hash::make($data['password']);
-        }
-        /*---------------------------------ROLE-MANAGEMENT---------------------------------*/
-
-        // If exists "role" field, get it own ID
-
-        if (isset($data['role']) && $data['role'] !== ''){
-
-            $role = Role::where('name', $data['role'])->get()->toArray();;
-    
-            if (!$role) {
-                $result = ResponseJson::format([], 'Incorrect field: role');
-                return response()->json($result, 400);
-            }
-    
-            $data['role_id'] = $role[0]['id'];
         }
 
         /*---------------------------------INSERT-AUTHOR-----------------------------------*/
