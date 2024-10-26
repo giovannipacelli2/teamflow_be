@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 //use Ramsey\Uuid\Uuid;
 
 class Todo extends BaseModel
 {
-    
+    protected static $modelName = 'todo';
     /*------------------------------------RELATION-------------------------------------*/
 
     public function account(): BelongsTo
@@ -16,23 +18,9 @@ class Todo extends BaseModel
         return $this->belongsTo(Account::class);
     }
 
-    /*-----------------------------------VALIDATIONS-----------------------------------*/
-
-    private static function loadValidations(){
-        
-        $translationsFile = APP_ROOT . '/app/Translations/models/todoValidations.php';
-
-        $validations = [];
-
-        if (file_exists($translationsFile)){
-            $validations = require_once($translationsFile);
-        }
-
-        return $validations;
-    }
-
-    public static function getValidations(){
-        return static::loadValidations();
+    public function sharedWith(): BelongsToMany
+    {
+        return $this->belongsToMany(Account::class, 'account_todo');
     }
 
     /*-------------------------------------FIELDS--------------------------------------*/
@@ -45,6 +33,7 @@ class Todo extends BaseModel
     protected $fillable = [
         'title',
         'description',
+        'note',
         'category',
         'checked',
         'account_id',
@@ -52,10 +41,15 @@ class Todo extends BaseModel
         'updated_at',
     ];
 
+    protected $hidden = [
+        'pivot',
+    ];
+
     protected $casts = [
         'id' => 'string',
         'title' => 'string',
         'description' => 'string',
+        'note' => 'string',
         'category' => 'string',
         'checked' => 'boolean',
         'account_id' => 'string',
@@ -76,6 +70,7 @@ class Todo extends BaseModel
     private $fields = [
         'title',
         'description',
+        'note',
         'category',
         'checked',
         'account_id',

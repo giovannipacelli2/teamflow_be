@@ -12,6 +12,8 @@ class BaseModel extends Model
 {
     use HasFactory, HasUuids;
 
+    protected static $modelName = '';
+
     protected static function boot()
     {
         parent::boot();
@@ -34,5 +36,24 @@ class BaseModel extends Model
     protected function serializeDate(\DateTimeInterface $date)
     {
         return Carbon::instance($date)->setTimezone('Europe/Rome')->toDateTimeString();
+    }
+
+    /*-----------------------------------VALIDATIONS-----------------------------------*/
+
+    private static function loadValidations(){
+        
+        $translationsFile = APP_ROOT . '/app/Translations/models/'. static::$modelName .'Validations.php';
+
+        $validations = [];
+
+        if (file_exists($translationsFile)){
+            $validations = require_once($translationsFile);
+        }
+
+        return $validations;
+    }
+
+    public static function getValidations(){
+        return static::loadValidations();
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 use App\Models\Todo;
+use App\Models\Account;
 
 // Custom static class
 use App\Include\ApiFunctions;
@@ -82,6 +83,54 @@ class TodoController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getAllSharedTodos(Request $request) {
+
+        /*----------------------------------AUTHORIZATION----------------------------------*/
+
+        $viewAll = Gate::inspect('viewShared', self::$MODEL_CLASS)->allowed();
+
+        $currentAccount = Auth::user();
+
+        if (!$currentAccount && !$viewAll) {
+
+            $result = ResponseJson::format([], 'Not Authorized');
+            return response()->json($result, 403);
+        }
+
+        /*--------------------------------GET-QUERY-STRING---------------------------------*/
+
+        $limit = $request->query('limit') ? (int) $request->query('limit') : 5;
+
+        /*-----------------------ELEMENTS-FROM-ACCOUNT-PERMISSIONS-------------------------*/
+
+        $currentAccount = Account::find(Auth::user()->id);
+
+        $model = $currentAccount->sharedWithMe();
+
+        /*--------------------------------FILTERING/SORTING--------------------------------*/
+
+
+        SortFilter::sortFilter($request, $model);
+
+        /*---------------------------------PAGINATE-RESULT---------------------------------*/
+        
+        try {
+    
+            // paginate data
+            $model = $model->paginate($limit)->toArray();
+
+        } catch (\Exception $e) {
+
+            $response = ResponseJson::format([], 'Error while getting the ' . self::$MODEL_NAME_LOWER . 's');
+
+            return response()->json($response, 500);
+        }
+
+        $response = ResponseJson::format($model, '');
+
+        return response()->json($response, 200);
+    }
+
     public function getTodo($modelId, Request $request) {
 
         /*------------------------------CHECK-ID-FROM-REQUEST------------------------------*/
@@ -93,6 +142,8 @@ class TodoController extends Controller
             $response = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
             return response()->json($response, 404);
         }
+
+        $model = $this->MODEL->where('id', $modelId);
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
         
@@ -106,6 +157,7 @@ class TodoController extends Controller
 
         /*--------------------------------POSITIVE-RESPONSE--------------------------------*/
 
+        $model = $model->get()->toArray()[0];
         $response = ResponseJson::format($model, ''); 
         return response()->json($response, 200);
     }
@@ -128,9 +180,9 @@ class TodoController extends Controller
         $rules = [
             'title' => 'required|string',
             'description' => 'nullable|string',
+            'note' => 'nullable|string',
             'category' => 'nullable|string',
-            'checked' => 'required|boolean',
-            'accountId' => ['required', new accountValidation],
+            'checked' => 'nullable|boolean',
         ];
 
         $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
@@ -156,8 +208,9 @@ class TodoController extends Controller
 
         $modelObj = ApiFunctions::arrCamelToSnake($data);
 
-        dd($modelObj);
-
+        // add account id
+        $currentAccountId = Auth::user()->id;
+        $modelObj['account_id'] = $currentAccountId;
 
         try{
             $created = $this->MODEL->create($modelObj);
@@ -182,5 +235,216 @@ class TodoController extends Controller
 
         $result = ResponseJson::format($lastId, self::$MODEL_NAME_UP_FIRST . ' created successfully');
         return response()->json($result, 201);
+    }
+
+    public function updateTodo($todoId, Request $request){
+
+        /*-----------------------------------FIND-MODEL------------------------------------*/
+
+        $checkModel = $this->MODEL->find($todoId);
+
+        if (!$checkModel) {
+        
+            $result = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
+            return response()->json($result, 404);
+        }
+
+        $model = $this->MODEL->where('id', $todoId);
+
+        /*----------------------------------AUTHORIZATION----------------------------------*/
+        
+        $auth = Gate::inspect('update', [self::$MODEL_CLASS, $model])->allowed();
+
+        if (!$auth) {
+
+            $result = ResponseJson::format([], 'Not Authorized');
+            return response()->json($result, 403);
+        }
+
+        /*---------------------------------DATA-VALIDATION---------------------------------*/
+
+        // Filter the inserted data
+
+        $rules = [
+            'title' => 'string',
+            'description' => 'nullable|string',
+            'note' => 'nullable|string',
+            'category' => 'nullable|string',
+            'checked' => 'nullable|boolean',
+        ];
+
+        $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
+
+        $validations = ApiFunctions::validateUpdate($request, $rules, false, $validationMsgs);
+
+        /*-------------------------------CHECK-VALIDATION----------------------------------*/
+        
+
+        if (count($validations['data']) === 0) {
+
+            $result = ResponseJson::format([], $validations['message']);
+            return response()->json($result, 400);
+        }
+
+        $data = $validations['data'];
+
+        if (count($data) === 0) {
+
+            $result = ResponseJson::format([], $data['message']);
+            return response()->json($result, 400);
+        }
+
+        /*----------------------------CREATE-ELOQUENT-PATIENT-MODEL------------------------*/
+
+        $modelObj = ApiFunctions::arrCamelToSnake($data);
+
+        /*---------------------------------STORE-DATA-IN-DB--------------------------------*/
+
+        try{
+            //Update account
+            $model->update($modelObj);
+
+        } catch (\Exception $e) {
+            $response = ResponseJson::format([], 'Update unsuccess');
+            return response()->json($response, 500);
+        }
+        $response = ResponseJson::format([], 'Update success');
+        return response()->json($response, 200);
+    }
+
+    public function shareTodo($todoId, Request $request){
+
+        /*-----------------------------------FIND-MODEL------------------------------------*/
+
+        $checkModel = $this->MODEL->find($todoId);
+
+        if (!$checkModel) {
+        
+            $result = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
+            return response()->json($result, 404);
+        }
+
+        $model = $this->MODEL->where('id', $todoId);
+
+        /*----------------------------------AUTHORIZATION----------------------------------*/
+        
+        $auth = Gate::inspect('share', [self::$MODEL_CLASS, $model])->allowed();
+
+        if (!$auth) {
+
+            $result = ResponseJson::format([], 'Not Authorized');
+            return response()->json($result, 403);
+        }
+
+        /*---------------------------------DATA-VALIDATION---------------------------------*/
+
+        // Filter the inserted data
+
+        $rules = [
+            'accounts' => 'nullable|array',
+        ];
+
+        $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
+
+        $validations = ApiFunctions::validateUpdate($request, $rules, false, $validationMsgs);
+
+        /*-------------------------------CHECK-VALIDATION----------------------------------*/
+        
+
+        if (count($validations['data']) === 0) {
+
+            $result = ResponseJson::format([], $validations['message']);
+            return response()->json($result, 400);
+        }
+
+        $data = $validations['data'];
+
+        if (count($data) === 0) {
+
+            $result = ResponseJson::format([], $data['message']);
+            return response()->json($result, 400);
+        }
+
+        /*-----------------------------------CHECK-ACCOUNTS--------------------------------*/
+        
+        $accountRules = [];
+        $accountIds = [];
+
+        foreach($data['accounts'] as $i=>$account){
+
+            $field = 'account_' . $i;
+
+            $accountIds = [
+                ...$accountIds,
+                $field => $account
+            ];
+
+           $accountRules = [
+                ...$accountRules,
+                $field => [new accountValidation]
+           ];
+
+        }
+
+        $validator = validator($accountIds, $accountRules);
+
+        if ($validator->fails()) {
+
+            $errors = $validator->errors();
+
+            $result = ResponseJson::format([], $errors);
+            return response()->json($result, 400);
+        }
+
+        /*---------------------------------STORE-DATA-IN-DB--------------------------------*/
+
+        try{
+            //update pivot
+            $this->MODEL->find($todoId)->sharedWith()->sync($data['accounts']);
+
+        } catch (\Exception $e) {
+            $response = ResponseJson::format([], 'Update unsuccess');
+            return response()->json($response, 500);
+        }
+        $response = ResponseJson::format([], 'Update success');
+        return response()->json($response, 200);
+    }
+
+    public function deleteTodo($todoId){
+
+        /*-----------------------------CHECK-IF-PATIENT-EXISTS-----------------------------*/
+
+        $checkModel = $this->MODEL::find($todoId);
+        
+        if (!$checkModel) {
+            
+            $response = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
+            return response()->json($response, 404);
+        }
+
+        $model = $checkModel->where('id', $todoId);
+
+        /*----------------------------------AUTHORIZATION----------------------------------*/
+
+        $auth = Gate::inspect('delete', [self::$MODEL_CLASS, $model])->allowed();
+
+        if (!$auth) {
+
+            $result = ResponseJson::format([], 'Not Authorized');
+            return response()->json($result, 403);
+        }    
+
+        /*-------------------------------DELETE-CHECK-IN-DB--------------------------------*/
+
+        $delete = $model->forceDelete();
+
+        if (!$delete) {
+
+            $result = ResponseJson::format([], 'Delete unsuccess');
+            return response()->json($result, 500);
+        }
+
+        $result = ResponseJson::format([], 'Delete success');
+        return response()->json($result, 200);
     }
 }

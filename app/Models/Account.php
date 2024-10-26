@@ -5,6 +5,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -36,6 +37,11 @@ class Account extends Authenticatable implements JWTSubject
         return $this->hasMany(Todo::class);
     }
 
+    public function sharedWithMe(): BelongsToMany
+    {
+        return $this->belongsToMany(Todo::class, 'account_todo');
+    }
+
 
     /*-----------------------------------PERMISSIONS-----------------------------------*/
 
@@ -45,29 +51,6 @@ class Account extends Authenticatable implements JWTSubject
             return true;
         }
         return false;
-    }
-
-    /*----------------------------------STATIC-METHODS---------------------------------*/
-
-
-
-    /*-----------------------------------VALIDATIONS-----------------------------------*/
-
-    private static function loadValidations(){
-        
-        $translationsFile = APP_ROOT . '/app/Translations/models/accountValidations.php';
-
-        $validations = [];
-
-        if (file_exists($translationsFile)){
-            $validations = require_once($translationsFile);
-        }
-
-        return $validations;
-    }
-
-    public static function getValidations(){
-        return static::loadValidations();
     }
 
     /*-------------------------------------FIELDS--------------------------------------*/

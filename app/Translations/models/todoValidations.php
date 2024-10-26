@@ -16,8 +16,9 @@ return [
             'required'=> ':attribute in required',
             'boolean' => ':attribute must be a boolean',
         ],
-        'accountId' => [
+        'accounts' => [
             'required'=> ':attribute in required',
+            'array'=> ':attribute must be an array',
         ],
     ],
     
@@ -36,8 +37,9 @@ return [
             'required'=> ':attribute è obbligatorio',
             'boolean' => ':attribute deve essere vero o falso',
         ],
-        'accountId' => [
+        'accounts' => [
             'required'=> ':attribute è obbligatorio',
+            'array'=> ':attribute deve essere un array',
         ],
     ]
 ];

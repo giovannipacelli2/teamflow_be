@@ -39,5 +39,16 @@ class AccountSeeder extends Seeder
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
         ]);
+
+        DB::table('accounts')->insert([
+            'id' => 'c0b52077-6404-427f-9766-d04b31ab4bd8',
+            'username' => 'angeligu',
+            'email' => 'ange@dev.com',
+            'name' => 'Angelica',
+            'surname' => 'Liguori',
+            'password' => Hash::make('abc1234'),
+            'created_at' => Date::now(),
+            'updated_at' => Date::now(),
+        ]);
     }
 }

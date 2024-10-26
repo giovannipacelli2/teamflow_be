@@ -15,11 +15,13 @@ class DatabaseSeeder extends Seeder
     {
         $account = new AccountSeeder();
         $todo = new TodoSeeder();
+        $account_todo = new AccountTodoSeeder();
 
 
         // RUN
 
         $account->run();
         $todo->run();
+        $account_todo->run();
     }
 }

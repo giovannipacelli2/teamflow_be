@@ -21,9 +21,10 @@ class TodoSeeder extends Seeder
         // TODOS -> ACCOUNT: test
 
         DB::table('todos')->insert([
-            'id' => Uuid::uuid4()->toString(),
+            'id' => 'f0e331d7-ccd7-4bea-91d7-51afee42c87b',
             'title' => 'Comprare il pane',
             'description' => '',
+            'note' => 'Non l\'ho trovato',
             'category' => 'casa',
             'checked' => false,
             'account_id' => '8a587029-80a2-4ae9-82e6-4f69f7383e63',

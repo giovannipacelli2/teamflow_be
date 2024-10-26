@@ -4,6 +4,7 @@ namespace App\Rules;
 
 use App\Models\Account;
 use Closure;
+use Exception;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\App;
 
@@ -21,16 +22,27 @@ class accountValidation implements ValidationRule
         $messages = [
             'en'=>[
                 'account' => 'Inserted :attribute is not exists',
+                'invalid' => 'Inserted :attribute format is invalid',
             ],
             'it'=>[
                 'account' => 'L\':attribute inserito non esiste',
+                'invalid' => 'Il formato di :attribute non è valido',
             ],
         ];
 
-        $check = Account::where('id', (string) $value);
-        dd($check->get()->toArray());
+        $check = null;
+        $invalid = false;
 
-        if (!$check){
+        try{
+            
+            $check = Account::find((string) $value);
+        } catch(Exception $e){
+
+            $invalid = true;
+            $fail($messages[$language]['invalid']);
+        }
+
+        if (!$check && !$invalid){
             $fail($messages[$language]['account']);
         }
     }

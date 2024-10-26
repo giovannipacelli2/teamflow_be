@@ -15,8 +15,9 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('title');
             $table->text('description')->nullable(true)->default('');
+            $table->text('note')->nullable(true)->default('');
             $table->string('category')->nullable(true);
-            $table->boolean('checked')->default(false);
+            $table->boolean('checked')->nullable(true)->default(false);
             $table->timestamps();
         });
     }
