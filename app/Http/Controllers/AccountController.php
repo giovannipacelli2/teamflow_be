@@ -21,6 +21,7 @@ use App\Translations\Translations;
  *  ),
  *  
  *  @OA\Server(
+ *     url="http://192.168.169.128:8000",
  *     url="http://localhost:8000",
  *     description="API Server"
  * ),

@@ -361,6 +361,11 @@ class AuthController extends Controller
         ]);
         $credentials = $request->only('username', 'password');
 
+        if (filter_var($credentials['username'], FILTER_VALIDATE_EMAIL)){
+            $credentials['email']=$credentials['username'];
+            unset($credentials['username']);
+        }
+
         $isAuth = Auth::attempt($credentials);
 
         if (!$isAuth) {

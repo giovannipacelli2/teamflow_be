@@ -13,7 +13,6 @@ use App\Http\Controllers\TodoController;
  *  ),
  *  
  *  @OA\Server(
- *     url="http://localhost:8000",
  *     description="API Server"
  * ),
  * 
