@@ -1374,7 +1374,7 @@ class TodoController extends Controller
 
         $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
 
-        $validations = ApiFunctions::validateUpdate($request, $rules, false, $validationMsgs);
+        $validations = ApiFunctions::validateUpdate($request, $rules, true, $validationMsgs);
 
         /*-------------------------------CHECK-VALIDATION----------------------------------*/
         
