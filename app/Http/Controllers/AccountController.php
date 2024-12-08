@@ -105,8 +105,135 @@ use App\Translations\Translations;
  *            type="object",
  *            @OA\Property(
  *                property="data", 
- *                type="object", 
- *                ref="#/components/schemas/AccountsResponse"
+ *                type="array", 
+ *                @OA\Items(
+ *                  ref="#/components/schemas/AccountsResponse"
+ *                )
+ *             ),    
+ *            @OA\Property(
+ *              property="message", 
+ *              type="string", 
+ *            ),
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Not Authorized",
+ *         @OA\JsonContent(
+ *           type="object",
+ *           @OA\Property(
+ *               property="data",
+ *               type="array",
+ *               @OA\Items(
+ *                   type="string"
+ *               ),
+ *           ),
+ *           @OA\Property(
+ *               property="message",
+ *               type="string",
+ *               example="Not Authorized"
+ *           ),
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Forbitten",
+ *         @OA\JsonContent(
+ *           type="object",
+ *           @OA\Property(
+ *               property="data",
+ *               type="array",
+ *               @OA\Items(
+ *                   type="string"
+ *               ),
+ *           ),
+ *           @OA\Property(
+ *               property="message",
+ *               type="string",
+ *               example="Not Authorized"
+ *           ),
+ *         )
+ *     ),
+ *     
+ *     security={{"bearerAuth":{}}}
+ * ),
+ * 
+ * @OA\Get(
+ *     path="/api/accounts/username/all",
+ *     summary="Get all accounts usernames",
+ *     operationId="getAllUsernames",
+ *     tags={"account"},
+ *     @OA\Parameter(
+ *         name="limit",
+ *         in="query",
+ *         description="Limit of elements",
+ *         required=false,
+ *         @OA\Schema(
+ *             type="integer",
+ *             example=10
+ *         ),
+ *     ),
+ *     @OA\Parameter(
+ *         name="page",
+ *         in="query",
+ *         description="Current page",
+ *         required=false,
+ *         @OA\Schema(
+ *             type="integer",
+ *             example=1
+ *         ),
+ *     ),
+ *     @OA\Parameter(
+ *         name="sortBy",
+ *         in="query",
+ *         description="sort by element",
+ *         required=false,
+ *         @OA\Schema(
+ *             type="string",
+ *             example="username"
+ *         ),
+ *     ),
+ *     @OA\Parameter(
+ *         name="sortValue",
+ *         in="query",
+ *         description="sorting type",
+ *         required=false,
+ *         @OA\Schema(
+ *             type="string",
+ *             example="ascend"
+ *         ),
+ *     ),
+ *     @OA\Parameter(
+ *         name="filterBy",
+ *         in="query",
+ *         description="fields to filter",
+ *         required=false,
+ *         @OA\Schema(
+ *             type="string",
+ *             example="name"
+ *         ),
+ *     ),
+ *     @OA\Parameter(
+ *         name="filterValue",
+ *         in="query",
+ *         description="Values to filter",
+ *         required=false,
+ *         @OA\Schema(
+ *             type="string",
+ *             example="ma"
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Ok",
+ *         @OA\JsonContent(
+ *            type="object",
+ *            @OA\Property(
+ *                property="data", 
+ *                type="array", 
+ *                @OA\Items(
+ *                  ref="#/components/schemas/AccountsUsernames"
+ *                )
  *             ),    
  *            @OA\Property(
  *              property="message", 
@@ -781,6 +908,23 @@ use App\Translations\Translations;
  *   },
  * ),
  * 
+ *  @OA\Schema(
+ *   schema="AccountsUsernames",
+ *   type="object",
+ *   properties={
+ *     @OA\Property(
+ *         property="id", 
+ *         type="string", 
+ *         example="a6ff9885-6166-4375-979a-bad6e2b4b9be", 
+ *     ), 
+ *     @OA\Property(
+ *         property="username", 
+ *         type="string", 
+ *         example="luca10", 
+ *     ), 
+ *   },
+ * ),
+ * 
  * 
  * @OA\Schema(
  *   schema="AccountsResponse",
@@ -993,6 +1137,47 @@ class AccountController extends Controller
         /*--------------------------------FILTERING/SORTING--------------------------------*/
 
         $model = $this->MODEL->select('*');
+
+        SortFilter::sortFilter($request, $model);
+
+        /*---------------------------------PAGINATE-RESULT---------------------------------*/
+        
+        try {
+    
+            // paginate data
+            $model = $model->paginate($limit)->toArray();
+
+        } catch (\Exception $e) {
+
+            $response = ResponseJson::format([], 'Error while getting the ' . self::$MODEL_NAME_LOWER . 's');
+
+            return response()->json($response, 500);
+        }
+
+        $response = ResponseJson::format($model, '');
+
+        return response()->json($response, 200);
+    }
+
+    public function getAllUsernames(Request $request) {
+
+        /*----------------------------------AUTHORIZATION----------------------------------*/
+
+        $auth = Gate::inspect('viewAny', self::$MODEL_CLASS)->allowed();
+
+        if (!$auth) {
+
+            $result = ResponseJson::format([], 'Not Authorized');
+            return response()->json($result, 403);
+        }
+
+        /*--------------------------------GET-QUERY-STRING---------------------------------*/
+
+        $limit = $request->query('limit') ? (int) $request->query('limit') : 5;
+
+        /*--------------------------------FILTERING/SORTING--------------------------------*/
+
+        $model = $this->MODEL->select('id', 'username');
 
         SortFilter::sortFilter($request, $model);
 

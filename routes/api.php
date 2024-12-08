@@ -40,6 +40,7 @@ Route::controller(AccountController::class)->group(function () {
 Route::controller(AccountController::class)->middleware(['jwt.auth'])->group(function () {
     //queryString = page, limit, sortBy, sortValue, filterBy, filterValue
     Route::get('account/all', 'getAllAccounts');
+    Route::get('accounts/username/all', 'getAllUsernames');
     Route::get('account/{accountId}', 'getAccount');
     Route::get('account/{accountId}/info', 'getAccountInfo');
     Route::post('account', 'createAccount');

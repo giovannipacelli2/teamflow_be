@@ -88,7 +88,153 @@
                                 "schema": {
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/AccountsResponse"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/AccountsResponse"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Not Authorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Authorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbitten",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Authorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/accounts/username/all": {
+            "get": {
+                "tags": [
+                    "account"
+                ],
+                "summary": "Get all accounts usernames",
+                "operationId": "getAllUsernames",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Limit of elements",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Current page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "description": "sort by element",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "username"
+                        }
+                    },
+                    {
+                        "name": "sortValue",
+                        "in": "query",
+                        "description": "sorting type",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "ascend"
+                        }
+                    },
+                    {
+                        "name": "filterBy",
+                        "in": "query",
+                        "description": "fields to filter",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "name"
+                        }
+                    },
+                    {
+                        "name": "filterValue",
+                        "in": "query",
+                        "description": "Values to filter",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "ma"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/AccountsUsernames"
+                                            }
                                         },
                                         "message": {
                                             "type": "string"
@@ -2334,6 +2480,19 @@
                     "surname": {
                         "type": "string",
                         "example": "La Porta"
+                    }
+                },
+                "type": "object"
+            },
+            "AccountsUsernames": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "a6ff9885-6166-4375-979a-bad6e2b4b9be"
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "luca10"
                     }
                 },
                 "type": "object"
