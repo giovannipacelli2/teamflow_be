@@ -2,13 +2,12 @@
 
 namespace App\Rules;
 
-use App\Models\Account;
+use App\Models\Todo;
 use Illuminate\Support\Facades\App;
 use Closure;
-use Exception;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class accountValidation implements ValidationRule
+class TodoValidation implements ValidationRule
 {
     /**
      * Run the validation rule.
@@ -21,11 +20,11 @@ class accountValidation implements ValidationRule
 
         $messages = [
             'en'=>[
-                'account' => 'Inserted :attribute is not exists',
+                'model' => 'Inserted :attribute is not exists',
                 'invalid' => 'Inserted :attribute format is invalid',
             ],
             'it'=>[
-                'account' => 'L\':attribute inserito non esiste',
+                'model' => 'L\':attribute inserito non esiste',
                 'invalid' => 'Il formato di :attribute non è valido',
             ],
         ];
@@ -35,15 +34,15 @@ class accountValidation implements ValidationRule
 
         try{
             
-            $check = Account::find((string) $value);
-        } catch(Exception $e){
+            $check = Todo::find((string) $value);
+        } catch(\Exception $e){
 
             $invalid = true;
             $fail($messages[$language]['invalid']);
         }
 
         if (!$check && !$invalid){
-            $fail($messages[$language]['account']);
+            $fail($messages[$language]['model']);
         }
     }
 }

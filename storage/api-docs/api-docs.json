@@ -1686,6 +1686,122 @@
                 ]
             }
         },
+        "/api/todo/{todoId}/accounts/all": {
+            "get": {
+                "tags": [
+                    "todo"
+                ],
+                "summary": "Get all todo accounts",
+                "description": "Get all accounts of a specific todo",
+                "operationId": "getAllTodoAccounts",
+                "parameters": [
+                    {
+                        "name": "todoId",
+                        "in": "path",
+                        "description": "todo id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "2588e5ad-0c5c-44e7-a865-a196b067c621"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/TodoAccountsResponse"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Not Authorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Authorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbitten",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Not Authorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Todo not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/todo/{todoId}": {
             "get": {
                 "tags": [
@@ -2698,6 +2814,19 @@
                     "account_id": {
                         "type": "string",
                         "example": "8a587029-80a2-4ae9-82e6-4f69f7383e63"
+                    }
+                },
+                "type": "object"
+            },
+            "TodoAccountsResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "1dcc7661-1251-456a-873c-2aa2028de9fd"
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "user_00"
                     }
                 },
                 "type": "object"

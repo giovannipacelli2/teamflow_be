@@ -14,6 +14,7 @@ class TodoPolicy
 
         return $currentAccount->isAdmin();
     }
+
     /**
      * Determine whether the user can view any shared models.
      */

@@ -14,6 +14,7 @@ use App\Models\Account;
 use App\Include\ApiFunctions;
 use App\Include\SortFilter;
 use App\Rules\accountValidation;
+use App\Rules\TodoValidation;
 use App\Translations\Translations;
 
 /**
@@ -301,6 +302,100 @@ use App\Translations\Translations;
  *         )
  *     ),
  *     
+ *     security={{"bearerAuth":{}}}
+ * ),
+ * 
+ * @OA\Get(
+ *     path="/api/todo/{todoId}/accounts/all",
+ *     summary="Get all todo accounts",
+ *     description="Get all accounts of a specific todo",
+ *     operationId="getAllTodoAccounts",
+ *     tags={"todo"},
+ *     @OA\Parameter(
+ *         name="todoId",
+ *         in="path",
+ *         description="todo id",
+ *         required=true,
+ *         @OA\Schema(
+ *             type="string",
+ *             example="2588e5ad-0c5c-44e7-a865-a196b067c621"
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Ok",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="data", 
+ *                 type="array",
+ *                 @OA\Items(
+ *                    ref="#/components/schemas/TodoAccountsResponse"
+ *                 )
+ *             ), 
+ *             @OA\Property(
+ *                 property="message", 
+ *                 type="string", 
+ *             ),
+ *         ),
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Not Authorized",
+ *         @OA\JsonContent(
+ *           type="object",
+ *           @OA\Property(
+ *               property="data",
+ *               type="array",
+ *               @OA\Items(
+ *                   type="string"
+ *               ),
+ *           ),
+ *           @OA\Property(
+ *               property="message",
+ *               type="string",
+ *               example="Not Authorized"
+ *           ),
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="Forbitten",
+ *         @OA\JsonContent(
+ *           type="object",
+ *           @OA\Property(
+ *               property="data",
+ *               type="array",
+ *               @OA\Items(
+ *                   type="string"
+ *               ),
+ *           ),
+ *           @OA\Property(
+ *               property="message",
+ *               type="string",
+ *               example="Not Authorized"
+ *           ),
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Not Found",
+ *         @OA\JsonContent(
+ *           type="object",
+ *           @OA\Property(
+ *               property="data",
+ *               type="array",
+ *               @OA\Items(
+ *                   type="string"
+ *               ),
+ *           ),
+ *           @OA\Property(
+ *               property="message",
+ *               type="string",
+ *               example="Todo not found"
+ *           ),
+ *         )
+ *     ),
  *     security={{"bearerAuth":{}}}
  * ),
  * 
@@ -992,6 +1087,23 @@ use App\Translations\Translations;
  * ),
  * 
  * @OA\Schema(
+ *   schema="TodoAccountsResponse",
+ *   type="object",
+ *   properties={
+ *     @OA\Property(
+ *         property="id", 
+ *         type="string", 
+ *         example="1dcc7661-1251-456a-873c-2aa2028de9fd", 
+ *     ), 
+ *     @OA\Property(
+ *         property="username", 
+ *         type="string", 
+ *         example="user_00", 
+ *     ), 
+ *   },
+ * ),
+ * 
+ * @OA\Schema(
  *   schema="TodosResponse",
  *   type="object",
  *   properties={
@@ -1178,6 +1290,59 @@ class TodoController extends Controller
         }
 
         $response = ResponseJson::format($model, '');
+
+        return response()->json($response, 200);
+    }
+
+    public function getAllTodoAccounts(Request $request, $modelId) {
+
+        /*----------------------------------AUTHORIZATION----------------------------------*/
+
+        $auth = Gate::inspect('viewAny', self::$MODEL_CLASS)->allowed();
+
+        if (!$auth) {
+
+            $result = ResponseJson::format([], 'Not Authorized');
+            return response()->json($result, 403);
+        }
+
+        /*---------------------------------DATA-VALIDATION---------------------------------*/
+
+        // Filter the inserted data
+
+        $req = [
+            'todoId' => $modelId,
+        ];
+        $rules = [
+            'todoId' => ['required', 'string', new TodoValidation],
+        ];
+
+        $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
+        $validator = validator($req, $rules, $validationMsgs);
+
+        if ($validator->fails()) {
+            return ResponseJson::response([], 400, $validator->errors());
+        }
+
+        /*------------------------------------GET-MODEL------------------------------------*/
+
+        $model = $this->MODEL->find($modelId);
+
+        /*---------------------------------PAGINATE-RESULT---------------------------------*/
+        
+        try {
+    
+            // get todo accounts
+            $accounts = $model->sharedWith()->get()->select(['id', 'username']);
+
+        } catch (\Exception $e) {
+
+            $response = ResponseJson::format([], 'Error while getting the ' . self::$MODEL_NAME_LOWER . 's');
+
+            return response()->json($response, 500);
+        }
+
+        $response = ResponseJson::format($accounts, '');
 
         return response()->json($response, 200);
     }

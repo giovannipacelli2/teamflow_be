@@ -1163,7 +1163,7 @@ class AccountController extends Controller
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('viewAny', self::$MODEL_CLASS)->allowed();
+        $auth = Gate::inspect('viewAnyUsernames', self::$MODEL_CLASS)->allowed();
 
         if (!$auth) {
 

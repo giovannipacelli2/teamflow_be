@@ -51,6 +51,7 @@ Route::controller(AccountController::class)->middleware(['jwt.auth'])->group(fun
 Route::controller(TodoController::class)->middleware(['jwt.auth'])->group(function () {
     Route::get('todo/all', 'getAllTodos');
     Route::get('todo/shared/all', 'getAllSharedTodos');
+    Route::get('todo/{todoId}/accounts/all', 'getAllTodoAccounts');
     Route::get('todo/{todoId}', 'getTodo');
     Route::post('todo', 'createTodo');
     Route::put('todo/{todoId}', 'updateTodo');

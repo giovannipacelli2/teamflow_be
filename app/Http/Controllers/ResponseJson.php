@@ -20,6 +20,15 @@ class ResponseJson extends Controller
 
         exit();
     }
+    public static function response($data, $code=200, $msg=''){
+
+        $result = [
+            'data' => $data,
+            'message' => $msg
+        ];
+
+        return response()->json($result, $code);
+    }
 
     public static function format($data, $msg=''){
 

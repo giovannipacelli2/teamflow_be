@@ -27,6 +27,14 @@ class AccountPolicy
         return ($isAdmin || $hisAccount);
     }
 
+        /**
+     * Determine whether the user can view any accounts usernames.
+     */
+    public function viewAnyUsernames(Account $currentAccount): bool
+    {
+        return true;
+    }
+
     public function viewSingleDetails(Account $currentAccount, $accountId): bool
     {
        return true;
