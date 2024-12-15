@@ -1298,7 +1298,7 @@ class TodoController extends Controller
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('viewAny', self::$MODEL_CLASS)->allowed();
+        $auth = Gate::inspect('viewSharedAccounts', self::$MODEL_CLASS)->allowed();
 
         if (!$auth) {
 

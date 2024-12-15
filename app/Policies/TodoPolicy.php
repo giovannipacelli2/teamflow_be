@@ -16,6 +16,15 @@ class TodoPolicy
     }
 
     /**
+     * Determine whether the user can view any models.
+     */
+    public function viewSharedAccounts(Account $currentAccount): bool
+    {
+
+        return true;
+    }
+
+    /**
      * Determine whether the user can view any shared models.
      */
     public function viewShared(Account $currentAccount): bool
