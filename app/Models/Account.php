@@ -18,6 +18,8 @@ class Account extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable, HasUuids;
 
+    protected static $modelName = 'account';
+
     protected static function boot()
     {
         parent::boot();
@@ -142,4 +144,23 @@ class Account extends Authenticatable implements JWTSubject
 
     private $extraFields = [
     ];
+
+    /*-----------------------------------VALIDATIONS-----------------------------------*/
+
+    private static function loadValidations(){
+        
+        $translationsFile = APP_ROOT . '/app/Translations/models/'. static::$modelName .'Validations.php';
+
+        $validations = [];
+
+        if (file_exists($translationsFile)){
+            $validations = require_once($translationsFile);
+        }
+
+        return $validations;
+    }
+
+    public static function getValidations(){
+        return static::loadValidations();
+    }
 }
