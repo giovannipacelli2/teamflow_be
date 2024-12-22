@@ -1263,13 +1263,13 @@ class AccountController extends Controller
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
 
-        $auth = Gate::inspect('create', self::$MODEL_CLASS)->allowed();
+        /* $auth = Gate::inspect('create', self::$MODEL_CLASS)->allowed();
 
         if (!$auth) {
 
             $result = ResponseJson::format([], 'Not Authorized');
             return response()->json($result, 403);
-        }
+        } */
 
         /*------------------------------------FUNCTION-------------------------------------*/
 
@@ -1302,15 +1302,12 @@ class AccountController extends Controller
 
         /*-------------------------------CREATE-NEW-ACCOUNT--------------------------------*/
 
-        $current = Auth::user();
-
         $modelObj = [
             'username' => $data['username'],
             'name' => $data['name'],
             'surname' => $data['surname'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'author' => $current->username,
         ];
 
 

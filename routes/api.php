@@ -43,7 +43,6 @@ Route::controller(AccountController::class)->middleware(['jwt.auth'])->group(fun
     Route::get('accounts/username/all', 'getAllUsernames');
     Route::get('account/{accountId}', 'getAccount');
     Route::get('account/{accountId}/info', 'getAccountInfo');
-    Route::post('account', 'createAccount');
     Route::put('account/{accountId}', 'updateAccount');
     Route::delete('account/{accountId}', 'deleteAccount');
 });
