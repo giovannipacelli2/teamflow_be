@@ -1460,17 +1460,8 @@ class AccountController extends Controller
             $result = ResponseJson::format([], 'Not Authorized');
             return response()->json($result, 403);
         }
-
-        /*-----------------------SUPER-CANNOT-DELETE-HIS-OWN-ACCOUNT-----------------------*/
-
-        $cannotDeleteAccount = $model['id'] === Auth::user()['id'];
-
-        if ($cannotDeleteAccount) {
-            $result = ResponseJson::format([], 'Delete unsuccess');
-            return response()->json($result, 500);
-        }
         
-        /*-------------------------------DELETE-VENUE-IN-DB--------------------------------*/
+        /*-------------------------------DELETE-MODEL-IN-DB--------------------------------*/
 
         $deleted = $model->forceDelete();
 
