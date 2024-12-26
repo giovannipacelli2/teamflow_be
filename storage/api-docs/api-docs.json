@@ -2814,6 +2814,25 @@
                     "account_id": {
                         "type": "string",
                         "example": "8a587029-80a2-4ae9-82e6-4f69f7383e63"
+                    },
+                    "sharedWith": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "example": "2d414d58-79d9-4b90-897f-d29889e86b98"
+                                },
+                                "username": {
+                                    "type": "string",
+                                    "example": "account_test"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "isShared": {
+                        "type": "boolean"
                     }
                 },
                 "type": "object"

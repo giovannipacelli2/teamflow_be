@@ -1083,6 +1083,27 @@ use App\Translations\Translations;
  *         type="string", 
  *         example="8a587029-80a2-4ae9-82e6-4f69f7383e63", 
  *     ),
+ *     @OA\Property(
+ *         property="sharedWith", 
+ *         type="array", 
+ *         @OA\Items(
+ *             type="object", 
+ *             @OA\Property(
+ *                 property="id", 
+ *                 type="string", 
+ *                 example="2d414d58-79d9-4b90-897f-d29889e86b98", 
+ *             ), 
+ *             @OA\Property(
+ *                 property="username", 
+ *                 type="string", 
+ *                 example="account_test", 
+ *             ), 
+ *         ), 
+ *     ), 
+ *     @OA\Property(
+ *         property="isShared", 
+ *         type="boolean", 
+ *     ),
  *   },
  * ),
  * 
@@ -1280,7 +1301,9 @@ class TodoController extends Controller
         try {
     
             // paginate data
-            $model = $model->paginate($limit)->toArray();
+            $model = $model->paginate($limit);
+
+            $model = $this->processData($model, 'paginate');
 
         } catch (\Exception $e) {
 
@@ -1381,7 +1404,8 @@ class TodoController extends Controller
         try {
     
             // paginate data
-            $model = $model->paginate($limit)->toArray();
+            $model = $model->paginate($limit);
+            $model = $this->processData($model, 'paginate');
 
         } catch (\Exception $e) {
 
@@ -1399,9 +1423,9 @@ class TodoController extends Controller
 
         /*------------------------------CHECK-ID-FROM-REQUEST------------------------------*/
 
-        $model = $this->MODEL->find($modelId);
+        $checkModel = $this->MODEL->find($modelId);
 
-        if (!$model) {
+        if (!$checkModel) {
 
             $response = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
             return response()->json($response, 404);
@@ -1421,8 +1445,9 @@ class TodoController extends Controller
 
         /*--------------------------------POSITIVE-RESPONSE--------------------------------*/
 
-        $model = $model->get()->toArray()[0];
-        $response = ResponseJson::format($model, ''); 
+        $res = $this->processData($checkModel);
+
+        $response = ResponseJson::format($res, ''); 
         return response()->json($response, 200);
     }
 
@@ -1556,6 +1581,13 @@ class TodoController extends Controller
 
             $result = ResponseJson::format([], $data['message']);
             return response()->json($result, 400);
+        }
+
+        if (array_key_exists('description', $data) && !$data['description']){
+            $data['description'] = '';
+        }
+        if (array_key_exists('note', $data) && !$data['note']){
+            $data['note'] = '';
         }
 
         /*----------------------------CREATE-ELOQUENT-PATIENT-MODEL------------------------*/
@@ -1710,5 +1742,52 @@ class TodoController extends Controller
 
         $result = ResponseJson::format([], 'Delete success');
         return response()->json($result, 200);
+    }
+
+    /*----------------------------------------------------PRIVATE-FUNCTIONS----------------------------------------------------*/
+
+    private function processData($model, $mode='single'){
+
+        if($mode==='single'){
+
+            $accounts = $model->sharedWith()->get()->makeHidden(['pivot']);
+
+            $res = [];
+
+            foreach($accounts as $account){
+
+                array_push($res, [
+                    'id'=>$account['id'],
+                    'username'=>$account['username'],
+                ]);
+            }
+
+            $model->sharedWith = $res;
+            $model->isShared = count($res) > 0;
+            
+           return $model;
+
+        } else if($mode==='paginate'){
+
+            return $model->through(function($todo){
+    
+                $accounts = $todo->sharedWith()->get()->makeHidden(['pivot']);
+
+                $res = [];
+
+                foreach($accounts as $account){
+
+                    array_push($res, [
+                        'id'=>$account['id'],
+                        'username'=>$account['username'],
+                    ]);
+                }
+                $todo->sharedWith = $res;
+                $todo->isShared = count($res) > 0;
+                
+                return $todo;
+            });
+        }
+
     }
 }
