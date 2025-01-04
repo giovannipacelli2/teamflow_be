@@ -11,6 +11,32 @@
         }
     ],
     "paths": {
+        "/": {
+            "get": {
+                "tags": [
+                    "params"
+                ],
+                "summary": "params",
+                "operationId": "",
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/sortFilterParams"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/account/all": {
             "get": {
                 "tags": [
@@ -977,32 +1003,6 @@
                                         }
                                     },
                                     "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/": {
-            "get": {
-                "tags": [
-                    "params"
-                ],
-                "summary": "params",
-                "operationId": "",
-                "responses": {
-                    "200": {
-                        "description": "Ok",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/sortFilterParams"
                                 }
                             }
                         }
@@ -2562,6 +2562,35 @@
     },
     "components": {
         "schemas": {
+            "sortFilterParams": {
+                "properties": {
+                    "limit": {
+                        "type": "integer"
+                    },
+                    "page": {
+                        "type": "integer"
+                    },
+                    "sortBy": {
+                        "type": "string"
+                    },
+                    "sortValue": {
+                        "type": "string"
+                    },
+                    "filterBy": {
+                        "type": "string"
+                    },
+                    "filterValue": {
+                        "type": "string"
+                    },
+                    "start": {
+                        "type": "string"
+                    },
+                    "end": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
             "AccountResponse": {
                 "properties": {
                     "id": {
@@ -2708,35 +2737,6 @@
                     "password": {
                         "type": "string",
                         "example": "abc1234"
-                    }
-                },
-                "type": "object"
-            },
-            "sortFilterParams": {
-                "properties": {
-                    "limit": {
-                        "type": "integer"
-                    },
-                    "page": {
-                        "type": "integer"
-                    },
-                    "sortBy": {
-                        "type": "string"
-                    },
-                    "sortValue": {
-                        "type": "string"
-                    },
-                    "filterBy": {
-                        "type": "string"
-                    },
-                    "filterValue": {
-                        "type": "string"
-                    },
-                    "start": {
-                        "type": "string"
-                    },
-                    "end": {
-                        "type": "string"
                     }
                 },
                 "type": "object"
@@ -2959,12 +2959,12 @@
     },
     "tags": [
         {
-            "name": "account",
-            "description": "account"
-        },
-        {
             "name": "params",
             "description": "params"
+        },
+        {
+            "name": "account",
+            "description": "account"
         },
         {
             "name": "auth",
