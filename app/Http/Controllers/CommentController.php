@@ -216,4 +216,35 @@ class CommentController extends Controller
         }
         return ResponseJson::response([], 200, $this->genericMsgs['put_succ']);
     }
+
+    public function deleteComment($commentId){
+
+        /*-----------------------------CHECK-IF-PATIENT-EXISTS-----------------------------*/
+
+        $checkModel = $this->MODEL::find($commentId);
+        
+        if (!$checkModel) {
+            
+            return ResponseJson::response([], 404, $this->genericMsgs['not_found']);
+        }
+
+        /*----------------------------------AUTHORIZATION----------------------------------*/
+
+        $auth = Gate::inspect('delete', [self::$MODEL_CLASS, $checkModel]);
+
+        if (!$auth->allowed()) {
+
+            return ResponseJson::response([], $auth->status(), $auth->message());
+        }
+
+        /*-------------------------------DELETE-CHECK-IN-DB--------------------------------*/
+
+        $delete = $checkModel->forceDelete();
+
+        if (!$delete) {
+            return ResponseJson::response([], 500, $this->genericMsgs['del_unsucc']);
+        }
+
+        return ResponseJson::response([], 200, $this->genericMsgs['del_succ']);
+    }
 }
