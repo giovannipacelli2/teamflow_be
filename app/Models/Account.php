@@ -55,6 +55,34 @@ class Account extends Authenticatable implements JWTSubject
         return false;
     }
 
+    /**
+     * @param mixed $todoModel Todo Eloquent instance
+     * @param boolean $shareChecker include sharing check
+     * @return boolean check if user can read/update/delete todo
+    */
+    public function hisTodo($todoModel, $shareChecker=false){
+        
+        $hisElem = $this->id == $todoModel->account_id;
+
+        if ($hisElem){
+            return true;
+        }
+
+        if ($shareChecker){
+
+            $shared = $todoModel->sharedWith()->wherePivot('todo_id', $todoModel->id);
+            $isShared = count($shared->get()->toArray()) > 0;
+    
+            if($isShared){
+                $accountIds = array_column($shared->get()->toArray(), 'id');
+                return in_array($this->id, $accountIds);
+            }
+        }
+
+        
+        return false;
+    }
+
     /*-------------------------------------FIELDS--------------------------------------*/
     
     /**

@@ -16,26 +16,27 @@ use App\Translations\Translations;
 
 class AccountController extends Controller
 {   
-    private static $MODEL_NAME_UP_FIRST = 'Account';
-    private static $MODEL_NAME_LOWER = 'account';
     private static $MODEL_CLASS = Account::class;
+    private $validationMsgs;
+    private $genericMsgs;
     private $MODEL;
 
     public function __construct()
     {
         $this->MODEL = new self::$MODEL_CLASS();
+        $this->validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
+        $this->genericMsgs = Translations::getMessages('generic');
     }
 
     public function getAllAccounts(Request $request) {
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('viewAny', self::$MODEL_CLASS)->allowed();
+        $auth = Gate::inspect('viewAny', self::$MODEL_CLASS);
 
-        if (!$auth) {
+        if (!$auth->allowed()) {
 
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
 
         /*--------------------------------GET-QUERY-STRING---------------------------------*/
@@ -57,26 +58,21 @@ class AccountController extends Controller
 
         } catch (\Exception $e) {
 
-            $response = ResponseJson::format([], 'Error while getting the ' . self::$MODEL_NAME_LOWER . 's');
-
-            return response()->json($response, 500);
+            return ResponseJson::response([], 500, $this->genericMsgs['quert_fail']);
         }
 
-        $response = ResponseJson::format($model, '');
-
-        return response()->json($response, 200);
+        return ResponseJson::response($model);
     }
 
     public function getAllUsernames(Request $request) {
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('viewAnyUsernames', self::$MODEL_CLASS)->allowed();
+        $auth = Gate::inspect('viewAnyUsernames', self::$MODEL_CLASS);
 
-        if (!$auth) {
+        if (!$auth->allowed()) {
 
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
 
         /*--------------------------------GET-QUERY-STRING---------------------------------*/
@@ -98,14 +94,10 @@ class AccountController extends Controller
 
         } catch (\Exception $e) {
 
-            $response = ResponseJson::format([], 'Error while getting the ' . self::$MODEL_NAME_LOWER . 's');
-
-            return response()->json($response, 500);
+            return ResponseJson::response([], 500, $this->genericMsgs['query_fail']);
         }
 
-        $response = ResponseJson::format($model, '');
-
-        return response()->json($response, 200);
+        return ResponseJson::response($model);
     }
 
     public function getAccount($accountId, Request $request) {
@@ -116,24 +108,21 @@ class AccountController extends Controller
 
         if (!$model) {
 
-            $response = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
-            return response()->json($response, 404);
+            return ResponseJson::response([], 404, $this->genericMsgs['not_found']);
         }
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
         
-        $auth = Gate::inspect('viewSingle', [self::$MODEL_CLASS, $accountId])->allowed();
-        
-        if (!$auth) {
-            
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+        $auth = Gate::inspect('viewSingle', [self::$MODEL_CLASS, $accountId]);
+
+        if (!$auth->allowed()) {
+
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
 
         /*--------------------------------POSITIVE-RESPONSE--------------------------------*/
 
-        $response = ResponseJson::format($model, ''); 
-        return response()->json($response, 200);
+        return ResponseJson::response($model);
     }
 
     public function getAccountInfo($accountId, Request $request) {
@@ -144,40 +133,26 @@ class AccountController extends Controller
 
         if (!$model) {
 
-            $response = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
-            return response()->json($response, 404);
+            return ResponseJson::response([], 404, $this->genericMsgs['not_found']);
         }
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
         
-        $auth = Gate::inspect('viewSingleDetails', [self::$MODEL_CLASS, $accountId])->allowed();
-        
-        if (!$auth) {
-            
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+        $auth = Gate::inspect('viewSingleDetails', [self::$MODEL_CLASS, $accountId]);
+
+        if (!$auth->allowed()) {
+
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
 
         $model = $model->select('name', 'surname')->where('id', $accountId)->get()->toArray()[0];
 
         /*--------------------------------POSITIVE-RESPONSE--------------------------------*/
 
-        $response = ResponseJson::format($model, ''); 
-        return response()->json($response, 200);
+        return ResponseJson::response($model);
     }
 
     public function createAccount(Request $request){
-
-        /*----------------------------------AUTHORIZATION----------------------------------*/
-
-
-        /* $auth = Gate::inspect('create', self::$MODEL_CLASS)->allowed();
-
-        if (!$auth) {
-
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
-        } */
 
         /*------------------------------------FUNCTION-------------------------------------*/
 
@@ -189,24 +164,7 @@ class AccountController extends Controller
             'password' => 'required|string|min:6',
         ];
 
-        $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
-
-        $validations = ApiFunctions::validateCreation($request, $rules, $validationMsgs);
-
-        if (count($validations['data']) === 0) {
-
-            $result = ResponseJson::format([], $validations['message']);
-            return response()->json($result, 400);
-        }
-
-        $data = $validations['data'];
-
-        if (count($data) === 0) {
-
-            $result = ResponseJson::format([], $data['message']);
-            return response()->json($result, 400);
-        }
-
+        $data = ApiFunctions::simpleValidate($request, $rules, $this->validationMsgs);
 
         /*-------------------------------CREATE-NEW-ACCOUNT--------------------------------*/
 
@@ -226,34 +184,28 @@ class AccountController extends Controller
             ];
 
             if (!$created) {
-                $result = ResponseJson::format([], 'Insert unsuccess');
-                return response()->json($result, 500);
+                return ResponseJson::response([], 500, $this->genericMsgs['post_unsucc']);
             }
-
+            
         } catch (\Exception $e){
-
-            $msg = 'Error while creating new ' . self::$MODEL_NAME_LOWER;
-
-            $result = ResponseJson::format([], $msg);
-            return response()->json($result, 500);
+            
+            return ResponseJson::response([], 500, $this->genericMsgs['query_fail']);
         }
-
-        /*-------------------------------CREATE-NEW-ACCOUNT--------------------------------*/
-
-        $result = ResponseJson::format($lastId, self::$MODEL_NAME_UP_FIRST . ' created successfully');
-        return response()->json($result, 201);
+        
+        /*--------------------------------POSITIVE-RESPONSE--------------------------------*/
+        
+        return ResponseJson::response($lastId, 201, $this->genericMsgs['post_succ']);
     }
 
     public function updateAccount($accountId, Request $request){
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('update', [self::$MODEL_CLASS, $accountId])->allowed();
+        $auth = Gate::inspect('update', [self::$MODEL_CLASS, $accountId]);
 
-        if (!$auth) {
+        if (!$auth->allowed()) {
 
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
 
         /*------------------------------CHECK-ID-FROM-REQUEST------------------------------*/
@@ -262,8 +214,7 @@ class AccountController extends Controller
 
         if (!$model) {
 
-            $response = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
-            return response()->json($response, 404);
+            return ResponseJson::response([], 404, $this->genericMsgs['not_found']);
         }
         
         $currentModelData = $model->where('id', $accountId)->get()->toArray()[0];
@@ -292,27 +243,8 @@ class AccountController extends Controller
             'email' => 'email|max:255|unique:accounts',
             'password' => 'string|min:6',
         ];
-        
-        $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
 
-        $validations = ApiFunctions::validateUpdate($request, $rules, false, $validationMsgs);
-
-        /*-------------------------------CHECK-VALIDATION----------------------------------*/
-        
-
-        if (count($validations['data']) === 0) {
-
-            $result = ResponseJson::format([], $validations['message']);
-            return response()->json($result, 400);
-        }
-
-        $data = $validations['data'];
-
-        if (count($data) === 0) {
-
-            $result = ResponseJson::format([], $data['message']);
-            return response()->json($result, 400);
-        }
+        $data = ApiFunctions::simpleValidate($request, $rules, $this->validationMsgs);
 
         /*---------------------------------HASH-PASSWORD-----------------------------------*/
 
@@ -337,14 +269,12 @@ class AccountController extends Controller
             $model->update($data);
 
         } catch (\Exception $e) {
-            $response = ResponseJson::format([], 'Update unsuccess');
-            return response()->json($response, 500);
+            return ResponseJson::response([], 500, $this->genericMsgs['put_unsucc']);
         }
-
+        
         /*---------------------------------POSITIVE-RESPONSE-------------------------------*/
-
-        $response = ResponseJson::format([], 'Update Success');
-        return response()->json($response, 200);
+        
+        return ResponseJson::response([], 200, $this->genericMsgs['put_succ']);
     }
 
     public function deleteAccount($accountId, Request $request){
@@ -355,18 +285,16 @@ class AccountController extends Controller
 
         if (!$model) {
 
-            $response = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
-            return response()->json($response, 404);
+            return ResponseJson::response([], 404, $this->genericMsgs['not_found']);
         }
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('delete', [self::$MODEL_CLASS, $accountId])->allowed();
+        $auth = Gate::inspect('delete', [self::$MODEL_CLASS, $accountId]);
 
-        if (!$auth) {
+        if (!$auth->allowed()) {
 
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
         
         /*-------------------------------DELETE-MODEL-IN-DB--------------------------------*/
@@ -375,12 +303,10 @@ class AccountController extends Controller
 
         if (!$deleted) {
 
-            $result = ResponseJson::format([], 'Delete unsuccess');
-            return response()->json($result, 500);
+            return ResponseJson::response([], 500, $this->genericMsgs['del_unsucc']);
         }
-
-        $result = ResponseJson::format([], 'Delete success');
-        return response()->json($result, 200);
+        
+        return ResponseJson::response([], 200, $this->genericMsgs['del_succ']);
     }
 
     /*--------------------------------PRIVATE-FUNCTIONS--------------------------------*/

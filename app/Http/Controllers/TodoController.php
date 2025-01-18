@@ -17,17 +17,24 @@ use App\Rules\accountValidation;
 use App\Rules\TodoValidation;
 use App\Translations\Translations;
 
+use App\Services\TodoService;
 
 class TodoController extends Controller
 {
     private static $MODEL_NAME_UP_FIRST = 'Todo';
     private static $MODEL_NAME_LOWER = 'todo';
     private static $MODEL_CLASS = Todo::class;
+    private $validationMsgs;
+    private $genericMsgs;
     private $MODEL;
 
-    public function __construct()
+    public function __construct(
+        private TodoService $TodoService
+    )
     {
         $this->MODEL = new self::$MODEL_CLASS();
+        $this->validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
+        $this->genericMsgs = Translations::getMessages('generic');
     }
 
     public function getAllTodos(Request $request) {
@@ -36,14 +43,6 @@ class TodoController extends Controller
 
         $viewAll = Gate::inspect('viewAny', self::$MODEL_CLASS)->allowed();
 
-        $currentAccount = Auth::user();
-
-        if (!$currentAccount) {
-
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
-        }
-
         /*--------------------------------GET-QUERY-STRING---------------------------------*/
 
         $limit = $request->query('limit') ? (int) $request->query('limit') : 5;
@@ -51,6 +50,7 @@ class TodoController extends Controller
         /*-----------------------ELEMENTS-FROM-ACCOUNT-PERMISSIONS-------------------------*/
 
         $model = null;
+        $currentAccount = Auth::user();
 
         if ($viewAll) {
 
@@ -73,13 +73,11 @@ class TodoController extends Controller
             // paginate data
             $model = $model->paginate($limit);
 
-            $model = $this->processData($model, 'paginate');
+            $model = $this->TodoService->processData($model, 'paginated');
 
         } catch (\Exception $e) {
 
-            $response = ResponseJson::format([], 'Error while getting the ' . self::$MODEL_NAME_LOWER . 's');
-
-            return response()->json($response, 500);
+            return ResponseJson::response([], 500, $this->genericMsgs['query_fail']);
         }
 
         $response = ResponseJson::format($model, '');
@@ -91,12 +89,11 @@ class TodoController extends Controller
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('viewSharedAccounts', self::$MODEL_CLASS)->allowed();
+        $auth = Gate::inspect('viewSharedAccounts', self::$MODEL_CLASS);
 
-        if (!$auth) {
+        if (!$auth->allowed()) {
 
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
 
         /*---------------------------------DATA-VALIDATION---------------------------------*/
@@ -130,28 +127,21 @@ class TodoController extends Controller
 
         } catch (\Exception $e) {
 
-            $response = ResponseJson::format([], 'Error while getting the ' . self::$MODEL_NAME_LOWER . 's');
-
-            return response()->json($response, 500);
+            return ResponseJson::response([], 500, $this->genericMsgs['query_fail']);
         }
 
-        $response = ResponseJson::format($accounts, '');
-
-        return response()->json($response, 200);
+        return ResponseJson::response($accounts);
     }
 
     public function getAllSharedTodos(Request $request) {
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $viewAll = Gate::inspect('viewShared', self::$MODEL_CLASS)->allowed();
+        $auth = Gate::inspect('viewShared', self::$MODEL_CLASS);
 
-        $currentAccount = Auth::user();
+        if (!$auth->allowed()) {
 
-        if (!$currentAccount && !$viewAll) {
-
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
 
         /*--------------------------------GET-QUERY-STRING---------------------------------*/
@@ -175,50 +165,42 @@ class TodoController extends Controller
     
             // paginate data
             $model = $model->paginate($limit);
-            $model = $this->processData($model, 'paginate');
+            $model = $this->TodoService->processData($model, 'paginated');
 
         } catch (\Exception $e) {
 
-            $response = ResponseJson::format([], 'Error while getting the ' . self::$MODEL_NAME_LOWER . 's');
-
-            return response()->json($response, 500);
+            return ResponseJson::response([], 500, $this->genericMsgs['query_fail']);
         }
 
-        $response = ResponseJson::format($model, '');
-
-        return response()->json($response, 200);
+        return ResponseJson::response($model);
     }
 
     public function getTodo($modelId, Request $request) {
 
         /*------------------------------CHECK-ID-FROM-REQUEST------------------------------*/
 
-        $checkModel = $this->MODEL->find($modelId);
+        $model = $this->MODEL->find($modelId);
 
-        if (!$checkModel) {
+        if (!$model) {
 
-            $response = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
-            return response()->json($response, 404);
+            return ResponseJson::response([], 404, $this->genericMsgs['not_found']);
         }
-
-        $model = $this->MODEL->where('id', $modelId);
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
         
-        $auth = Gate::inspect('viewSingle', [self::$MODEL_CLASS, $model])->allowed();
+        $auth = Gate::inspect('viewSingle', [self::$MODEL_CLASS, $model]);
         
-        if (!$auth) {
-            
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+        if (!$auth->allowed()) {
+
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
+
 
         /*--------------------------------POSITIVE-RESPONSE--------------------------------*/
 
-        $res = $this->processData($checkModel);
+        $res = $this->TodoService->processData($model);
 
-        $response = ResponseJson::format($res, ''); 
-        return response()->json($response, 200);
+        return ResponseJson::response($res);
     }
 
     public function createTodo(Request $request){
@@ -226,12 +208,11 @@ class TodoController extends Controller
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
 
-        $auth = Gate::inspect('create', self::$MODEL_CLASS)->allowed();
+        $auth = Gate::inspect('create', self::$MODEL_CLASS);
 
-        if (!$auth) {
+        if (!$auth->allowed()) {
 
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
 
         /*------------------------------------FUNCTION-------------------------------------*/
@@ -244,24 +225,7 @@ class TodoController extends Controller
             'checked' => 'nullable|boolean',
         ];
 
-        $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
-
-        $validations = ApiFunctions::validateCreation($request, $rules, $validationMsgs);
-
-        if (count($validations['data']) === 0) {
-
-            $result = ResponseJson::format([], $validations['message']);
-            return response()->json($result, 400);
-        }
-
-        $data = $validations['data'];
-
-        if (count($data) === 0) {
-
-            $result = ResponseJson::format([], $data['message']);
-            return response()->json($result, 400);
-        }
-
+        $data = ApiFunctions::simpleValidate($request, $rules, $this->validationMsgs);
 
         /*--------------------------------CREATE-NEW-MODEL---------------------------------*/
 
@@ -278,8 +242,7 @@ class TodoController extends Controller
             ];
 
             if (!$created) {
-                $result = ResponseJson::format([], 'Insert unsuccess');
-                return response()->json($result, 500);
+                return ResponseJson::response($lastId, 201, $this->genericMsgs['post_succ']);
             }
 
         } catch (\Exception $e){
@@ -308,16 +271,13 @@ class TodoController extends Controller
             return response()->json($result, 404);
         }
 
-        $model = $this->MODEL->where('id', $todoId);
-
         /*----------------------------------AUTHORIZATION----------------------------------*/
         
-        $auth = Gate::inspect('update', [self::$MODEL_CLASS, $model])->allowed();
+        $auth = Gate::inspect('update', [self::$MODEL_CLASS, $checkModel]);
 
-        if (!$auth) {
+        if (!$auth->allowed()) {
 
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
 
         /*---------------------------------DATA-VALIDATION---------------------------------*/
@@ -332,26 +292,9 @@ class TodoController extends Controller
             'checked' => 'nullable|boolean',
         ];
 
-        $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
-
-        $validations = ApiFunctions::validateUpdate($request, $rules, true, $validationMsgs);
+        $data = ApiFunctions::simpleValidate($request, $rules, $this->validationMsgs);
 
         /*-------------------------------CHECK-VALIDATION----------------------------------*/
-        
-
-        if (count($validations['data']) === 0) {
-
-            $result = ResponseJson::format([], $validations['message']);
-            return response()->json($result, 400);
-        }
-
-        $data = $validations['data'];
-
-        if (count($data) === 0) {
-
-            $result = ResponseJson::format([], $data['message']);
-            return response()->json($result, 400);
-        }
 
         if (array_key_exists('description', $data) && !$data['description']){
             $data['description'] = '';
@@ -368,14 +311,13 @@ class TodoController extends Controller
 
         try{
             //Update account
-            $model->update($modelObj);
+            $checkModel->update($modelObj);
 
         } catch (\Exception $e) {
-            $response = ResponseJson::format([], 'Update unsuccess');
-            return response()->json($response, 500);
+            return ResponseJson::response([], 500, $this->genericMsgs['put_unsucc']);
         }
-        $response = ResponseJson::format([], 'Update success');
-        return response()->json($response, 200);
+
+        return ResponseJson::response([], 200, $this->genericMsgs['put_succ']);
     }
 
     public function shareTodo($todoId, Request $request){
@@ -386,20 +328,16 @@ class TodoController extends Controller
 
         if (!$checkModel) {
         
-            $result = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
-            return response()->json($result, 404);
+            return ResponseJson::response([], 404, $this->genericMsgs['not_found']);
         }
-
-        $model = $this->MODEL->where('id', $todoId);
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
         
-        $auth = Gate::inspect('share', [self::$MODEL_CLASS, $model])->allowed();
+        $auth = Gate::inspect('share', [self::$MODEL_CLASS, $checkModel]);
 
-        if (!$auth) {
+        if (!$auth->allowed()) {
 
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
+            return ResponseJson::response([], $auth->status(), $auth->message());
         }
 
         /*---------------------------------DATA-VALIDATION---------------------------------*/
@@ -410,26 +348,7 @@ class TodoController extends Controller
             'accounts' => 'nullable|array',
         ];
 
-        $validationMsgs = Translations::getValidations(self::$MODEL_CLASS);
-
-        $validations = ApiFunctions::validateUpdate($request, $rules, false, $validationMsgs);
-
-        /*-------------------------------CHECK-VALIDATION----------------------------------*/
-        
-
-        if (count($validations['data']) === 0) {
-
-            $result = ResponseJson::format([], $validations['message']);
-            return response()->json($result, 400);
-        }
-
-        $data = $validations['data'];
-
-        if (count($data) === 0) {
-
-            $result = ResponseJson::format([], $data['message']);
-            return response()->json($result, 400);
-        }
+        $$data = ApiFunctions::simpleValidate($request, $rules, $this->validationMsgs);
 
         /*-----------------------------------CHECK-ACCOUNTS--------------------------------*/
         
@@ -455,11 +374,7 @@ class TodoController extends Controller
         $validator = validator($accountIds, $accountRules);
 
         if ($validator->fails()) {
-
-            $errors = $validator->errors();
-
-            $result = ResponseJson::format([], $errors);
-            return response()->json($result, 400);
+            return ResponseJson::response([], 400, $validator->errors());
         }
 
         /*---------------------------------STORE-DATA-IN-DB--------------------------------*/
@@ -469,11 +384,9 @@ class TodoController extends Controller
             $this->MODEL->find($todoId)->sharedWith()->sync($data['accounts']);
 
         } catch (\Exception $e) {
-            $response = ResponseJson::format([], 'Update unsuccess');
-            return response()->json($response, 500);
+            return ResponseJson::response([], 500, $this->genericMsgs['put_unsucc']);
         }
-        $response = ResponseJson::format([], 'Update success');
-        return response()->json($response, 200);
+        return ResponseJson::response([], 200, $this->genericMsgs['put_succ']);
     }
 
     public function deleteTodo($todoId){
@@ -484,80 +397,30 @@ class TodoController extends Controller
         
         if (!$checkModel) {
             
-            $response = ResponseJson::format([], self::$MODEL_NAME_UP_FIRST . ' not found');
-            return response()->json($response, 404);
+            return ResponseJson::response([], 404, $this->genericMsgs['not_found']);
         }
-
-        $model = $checkModel->where('id', $todoId);
 
         /*----------------------------------AUTHORIZATION----------------------------------*/
 
-        $auth = Gate::inspect('delete', [self::$MODEL_CLASS, $model])->allowed();
+        $auth = Gate::inspect('delete', [self::$MODEL_CLASS, $checkModel]);
 
-        if (!$auth) {
+        if (!$auth->allowed()) {
 
-            $result = ResponseJson::format([], 'Not Authorized');
-            return response()->json($result, 403);
-        }    
+            return ResponseJson::response([], $auth->status(), $auth->message());
+        }
 
         /*-------------------------------DELETE-CHECK-IN-DB--------------------------------*/
 
-        $delete = $model->forceDelete();
+        $delete = $checkModel->forceDelete();
 
         if (!$delete) {
-
-            $result = ResponseJson::format([], 'Delete unsuccess');
-            return response()->json($result, 500);
+            return ResponseJson::response([], 500, $this->genericMsgs['del_unsucc']);
         }
 
-        $result = ResponseJson::format([], 'Delete success');
-        return response()->json($result, 200);
+        return ResponseJson::response([], 200, $this->genericMsgs['del_succ']);
     }
 
     /*----------------------------------------------------PRIVATE-FUNCTIONS----------------------------------------------------*/
 
-    private function processData($model, $mode='single'){
-
-        if($mode==='single'){
-
-            $accounts = $model->sharedWith()->get()->makeHidden(['pivot']);
-
-            $res = [];
-
-            foreach($accounts as $account){
-
-                array_push($res, [
-                    'id'=>$account['id'],
-                    'username'=>$account['username'],
-                ]);
-            }
-
-            $model->sharedWith = $res;
-            $model->isShared = count($res) > 0;
-            
-           return $model;
-
-        } else if($mode==='paginate'){
-
-            return $model->through(function($todo){
     
-                $accounts = $todo->sharedWith()->get()->makeHidden(['pivot']);
-
-                $res = [];
-
-                foreach($accounts as $account){
-
-                    array_push($res, [
-                        'id'=>$account['id'],
-                        'username'=>$account['username'],
-                    ]);
-                }
-                $todo->sharedWith = $res;
-                $todo->isShared = count($res) > 0;
-                
-                return $todo;
-            });
-        }
-
-    }
 }

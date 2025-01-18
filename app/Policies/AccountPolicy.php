@@ -4,74 +4,98 @@ namespace App\Policies;
 
 use App\Models\Account;
 use Illuminate\Auth\Access\Response;
+use App\Translations\Translations;
 
 class AccountPolicy
 {
+
+    private $MSG;
+
+    public function __construct() {
+        $this->MSG = Translations::getMessages('generic');
+    }
+
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(Account $currentAccount): bool
+    public function viewAny(Account $currentAccount): Response
     {
 
-        return $currentAccount->isAdmin();
+        $can = $currentAccount->isAdmin();
+        return $this->getPermission($can);
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function viewSingle(Account $currentAccount, $accountId): bool
+    public function viewSingle(Account $currentAccount, $accountId): Response
     {
         $hisAccount = $currentAccount->id == $accountId;
         $isAdmin = $currentAccount->isAdmin();
 
-        return ($isAdmin || $hisAccount);
+        $can = $isAdmin || $hisAccount;
+
+        return $this->getPermission($can);
     }
 
         /**
      * Determine whether the user can view any accounts usernames.
      */
-    public function viewAnyUsernames(Account $currentAccount): bool
+    public function viewAnyUsernames(Account $currentAccount): Response
     {
-        return true;
+        $can = (bool) $currentAccount;
+        return $this->getPermission($can);
     }
 
-    public function viewSingleDetails(Account $currentAccount, $accountId): bool
+    public function viewSingleDetails(Account $currentAccount, $accountId): Response
     {
-       return true;
+        $can = (bool) $currentAccount;
+        return $this->getPermission($can);
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(Account $currentAccount): bool
+    public function create(Account $currentAccount): Response
     {
-        return true;
+        $can = (bool) $currentAccount;
+        return $this->getPermission($can);
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(Account $currentAccount, $accountId): bool
+    public function update(Account $currentAccount, $accountId): Response
     {
         $hisAccount = $currentAccount->id == $accountId;
         $isAdmin = $currentAccount->isAdmin();
 
-        return ($isAdmin || $hisAccount);
+        $can = $isAdmin || $hisAccount;
+        return $this->getPermission($can);
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(Account $currentAccount, $accountId): bool
+    public function delete(Account $currentAccount, $accountId): Response
     {
         $hisAccount = $currentAccount->id == $accountId;
         $isAdmin = $currentAccount->isAdmin();
 
         // admin can't delete his self
         if ($isAdmin && $hisAccount){
-            return false;
+            $this->getPermission(false);
         }
 
-        return ($isAdmin || $hisAccount);
+        $can = $isAdmin || $hisAccount;
+        return $this->getPermission($can);
+    }
+
+    private function getPermission($can) : Response {
+        if($can){
+            return Response::allow();
+        }
+
+        return Response::denyWithStatus(403, $this->MSG['unauthorized']);
     }
 }

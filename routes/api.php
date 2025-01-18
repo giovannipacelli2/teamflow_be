@@ -4,26 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\TodoController;
-
-/**
- *  @OA\Info(
- *      title="s2i_final", 
- *      version="0.8",
- *  ),
- *  
- *  @OA\Server(
- *     description="API Server"
- * ),
- * 
- *  @OA\SecurityScheme(
- *     securityScheme="bearerAuth",
- *     type="http",
- *     scheme="bearer",
- *     bearerFormat="JWT"
- * ),
- *  
- **/
 
 //OK
 Route::controller(AuthController::class)->group(function () {
@@ -56,4 +38,12 @@ Route::controller(TodoController::class)->middleware(['jwt.auth'])->group(functi
     Route::put('todo/{todoId}', 'updateTodo');
     Route::patch('todo/{todoId}', 'shareTodo');
     Route::delete('todo/{todoId}', 'deleteTodo');
+});
+
+Route::controller(CommentController::class)->middleware(['jwt.auth'])->group(function () {
+    Route::get('comment/{todoId}/all', 'getAllTodoComments');
+    Route::get('comment/{commentId}', 'getComment');
+    Route::post('todo/{todoId}/comment', 'createComment');
+    Route::put('comment/{commentId}', 'updateComment');
+    Route::delete('comment/{commentId}', 'deleteComment');
 });

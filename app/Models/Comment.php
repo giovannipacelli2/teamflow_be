@@ -4,14 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-//use Ramsey\Uuid\Uuid;
-
-class Todo extends BaseModel
+class Comment extends BaseModel
 {
-    protected static $modelName = 'todo';
+    protected static $modelName = 'comment';
     /*------------------------------------RELATION-------------------------------------*/
 
     public function account(): BelongsTo
@@ -19,15 +15,11 @@ class Todo extends BaseModel
         return $this->belongsTo(Account::class);
     }
 
-    public function comments(): HasMany
+    public function todo(): BelongsTo
     {
-        return $this->hasMany(Comment::class);
+        return $this->belongsTo(Todo::class);
     }
 
-    public function sharedWith(): BelongsToMany
-    {
-        return $this->belongsToMany(Account::class, 'account_todo');
-    }
 
     /*-------------------------------------FIELDS--------------------------------------*/
     
@@ -37,14 +29,11 @@ class Todo extends BaseModel
      * @var array<int, string>
      */
     protected $fillable = [
-        'title',
-        'description',
-        'note',
-        'category',
-        'checked',
-        'account_id',
+        'content',
         'created_at',
         'updated_at',
+        'todo_id',
+        'account_id',
     ];
 
     protected $hidden = [
@@ -53,14 +42,11 @@ class Todo extends BaseModel
 
     protected $casts = [
         'id' => 'string',
-        'title' => 'string',
-        'description' => 'string',
-        'note' => 'string',
-        'category' => 'string',
-        'checked' => 'boolean',
-        'account_id' => 'string',
+        'content' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'todo_id' => 'string',
+        'account_id' => 'string',
     ];
 
     /*-------------------------------SORT-FILTER-FIELDS--------------------------------*/
@@ -74,14 +60,12 @@ class Todo extends BaseModel
     }
     
     private $fields = [
-        'title',
-        'description',
-        'note',
-        'category',
-        'checked',
-        'account_id',
+        'id',
+        'content',
         'created_at',
         'updated_at',
+        'todo_id',
+        'account_id',
     ];
 
     private $extraFields = [

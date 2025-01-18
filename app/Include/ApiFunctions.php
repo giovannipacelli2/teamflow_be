@@ -2,6 +2,7 @@
 
 namespace App\Include;
 
+use App\Exceptions\JsonRespException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ResponseJson;
 use Illuminate\Support\Facades\Validator;
@@ -158,6 +159,49 @@ class ApiFunctions
         ];
 
     }
+
+    /*--------------LARAVEL-SIMPLE-VALIDATION-----------------*/
+    
+    public static function simpleValidate(Request $request, $rules, $messages=[]) : array {
+
+
+        $necessaryFiels = array_keys($rules);
+
+        $validator = null;
+
+        if (count($messages) == 0) {
+            $validator = validator($request->all(), $rules);
+        } else {
+            $validator = validator($request->all(), $rules, $messages);
+        }
+
+        // Manage filter errors
+
+        if ($validator->fails()) {
+
+            // STRINGIFY ERROR MESSAGES
+
+            $errors = $validator->errors();
+
+            $msgsArr = [];
+
+            foreach($errors->messages() as $key=>$value){
+                $msgs = implode('. ',$value);
+                array_push($msgsArr, $key . ': ' . $msgs);
+            }
+
+            $msgsStr = implode('. ', $msgsArr);
+
+            throw new JsonRespException($msgsStr, 400, null, $errors);
+
+            return $result;
+        }
+
+        // returns validated data
+
+        return (array) $request->only(...$necessaryFiels);
+    }
+    
 
     /*-----------------LARAVEL-VALIDATION---------------------*/
     
