@@ -18,7 +18,7 @@ Route::controller(AuthController::class)->group(function () {
 Route::controller(AccountController::class)->group(function () {
     Route::post('account', 'createAccount');
 });
-
+// OK
 Route::controller(AccountController::class)->middleware(['jwt.auth'])->group(function () {
     //queryString = page, limit, sortBy, sortValue, filterBy, filterValue
     Route::get('account/all', 'getAllAccounts');
@@ -28,7 +28,7 @@ Route::controller(AccountController::class)->middleware(['jwt.auth'])->group(fun
     Route::put('account/{accountId}', 'updateAccount');
     Route::delete('account/{accountId}', 'deleteAccount');
 });
-
+// OK
 Route::controller(TodoController::class)->middleware(['jwt.auth'])->group(function () {
     Route::get('todo/all', 'getAllTodos');
     Route::get('todo/shared/all', 'getAllSharedTodos');
@@ -39,9 +39,9 @@ Route::controller(TodoController::class)->middleware(['jwt.auth'])->group(functi
     Route::patch('todo/{todoId}', 'shareTodo');
     Route::delete('todo/{todoId}', 'deleteTodo');
 });
-
+// OK
 Route::controller(CommentController::class)->middleware(['jwt.auth'])->group(function () {
-    Route::get('comment/{todoId}/all', 'getAllTodoComments');
+    Route::get('todo/{todoId}/comment/all', 'getAllTodoComments');
     Route::get('comment/{commentId}', 'getComment');
     Route::post('todo/{todoId}/comment', 'createComment');
     Route::put('comment/{commentId}', 'updateComment');
