@@ -348,7 +348,7 @@ class TodoController extends Controller
             'accounts' => 'nullable|array',
         ];
 
-        $$data = ApiFunctions::simpleValidate($request, $rules, $this->validationMsgs);
+        $data = ApiFunctions::simpleValidate($request, $rules, $this->validationMsgs);
 
         /*-----------------------------------CHECK-ACCOUNTS--------------------------------*/
         
