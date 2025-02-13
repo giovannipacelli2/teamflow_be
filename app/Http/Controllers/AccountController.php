@@ -166,6 +166,9 @@ class AccountController extends Controller
 
         $data = ApiFunctions::simpleValidate($request, $rules, $this->validationMsgs);
 
+        $data = ApiFunctions::textProcessing($data, "lower" ,['username', 'email']);
+        $data = ApiFunctions::textProcessing($data, "ucfirst" ,['name', 'surname']);
+
         /*-------------------------------CREATE-NEW-ACCOUNT--------------------------------*/
 
         $modelObj = [

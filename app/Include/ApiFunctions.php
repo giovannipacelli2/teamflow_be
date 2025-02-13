@@ -11,6 +11,52 @@ use Carbon\Carbon;
 class ApiFunctions
 {
 
+    /*--------------------------------TEXT-PROCESSING----------------------------------*/
+
+    /**
+     * @param array | string $data
+     * @param "lower" | "upper" | "ucfirst" $trasform
+     * @param array{string} $associativeKeys
+    */
+    public static function textProcessing($data, $transform = "lower", $associativeKeys=[])
+    {
+        $fn = function($text) use ($transform){
+            $text = strtolower(trim($text));
+
+            switch($transform){
+                case 'lower':
+                    return $text;
+                case 'upper':
+                    return strtoupper($text);
+                case 'ucfirst':
+                    return ucfirst($text);
+                default:
+                    return $text;
+            }
+        };
+
+        if (is_array($data)) {
+
+            if (count($associativeKeys)>0){
+                foreach($associativeKeys as $key){
+
+                    if (isset($data[$key])){
+                        $data[$key] = $fn($data[$key]);
+                    }
+                }
+
+                return $data;
+            }
+
+            return array_map($fn, $data);
+        }
+        elseif (is_string($data)) {
+            return $fn($data);
+        }
+
+        return false;
+    }
+
     /*--------------------------------SERIALIZE-FLOATS---------------------------------*/
 
     public static function serializeFloat($floatValue)
