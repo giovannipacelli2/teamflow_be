@@ -1,0 +1,2560 @@
+openapi: 3.0.0
+info:
+  title: TeamFlow
+  version: '1.0'
+servers:
+  -
+    url: 'http://teamflow-be.gplans.it'
+    description: 'API Server'
+paths:
+  /:
+    get:
+      tags:
+        - params
+      summary: params
+      operationId: ''
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sortFilterParams'
+      security:
+        -
+          bearerAuth: []
+  /api/account/all:
+    get:
+      tags:
+        - account
+      summary: 'Get all accounts data'
+      operationId: getAllAccounts
+      parameters:
+        -
+          name: limit
+          in: query
+          description: 'Limit of elements'
+          required: false
+          schema:
+            type: integer
+            example: 10
+        -
+          name: page
+          in: query
+          description: 'Current page'
+          required: false
+          schema:
+            type: integer
+            example: 1
+        -
+          name: sortBy
+          in: query
+          description: 'sort by element'
+          required: false
+          schema:
+            type: string
+            example: username
+        -
+          name: sortValue
+          in: query
+          description: 'sorting type'
+          required: false
+          schema:
+            type: string
+            example: ascend
+        -
+          name: filterBy
+          in: query
+          description: 'fields to filter'
+          required: false
+          schema:
+            type: string
+            example: name
+        -
+          name: filterValue
+          in: query
+          description: 'Values to filter'
+          required: false
+          schema:
+            type: string
+            example: ma
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AccountsResponse'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  /api/accounts/username/all:
+    get:
+      tags:
+        - account
+      summary: 'Get all accounts usernames'
+      operationId: getAllUsernames
+      parameters:
+        -
+          name: limit
+          in: query
+          description: 'Limit of elements'
+          required: false
+          schema:
+            type: integer
+            example: 10
+        -
+          name: page
+          in: query
+          description: 'Current page'
+          required: false
+          schema:
+            type: integer
+            example: 1
+        -
+          name: sortBy
+          in: query
+          description: 'sort by element'
+          required: false
+          schema:
+            type: string
+            example: username
+        -
+          name: sortValue
+          in: query
+          description: 'sorting type'
+          required: false
+          schema:
+            type: string
+            example: ascend
+        -
+          name: filterBy
+          in: query
+          description: 'fields to filter'
+          required: false
+          schema:
+            type: string
+            example: name
+        -
+          name: filterValue
+          in: query
+          description: 'Values to filter'
+          required: false
+          schema:
+            type: string
+            example: ma
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AccountsUsernames'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  '/api/account/{accountId}':
+    get:
+      tags:
+        - account
+      summary: 'Get data of a single account'
+      operationId: getAccount
+      parameters:
+        -
+          name: accountId
+          in: path
+          description: 'model id'
+          required: true
+          schema:
+            type: string
+            example: 59e7626e-49bf-4e63-b195-f4d826af8ad8
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AccountResponse'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Account not found'
+                type: object
+      security:
+        -
+          bearerAuth: []
+    put:
+      tags:
+        - account
+      summary: 'Update a specific account'
+      description: ''
+      operationId: updateAccount
+      parameters:
+        -
+          name: accountId
+          in: path
+          description: 'model id'
+          required: true
+          schema:
+            type: string
+            example: c7817f8f-3539-46c9-a5ec-b85227bb4e07
+      requestBody:
+        description: 'JSON with account data'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountBodyReq'
+      responses:
+        200:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items: []
+                  message:
+                    type: string
+                    example: 'Update Success'
+                type: object
+        400:
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Bad request'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Inserted model not exists'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Account not found'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Insert unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+    delete:
+      tags:
+        - account
+      summary: 'Delete an existing account'
+      description: ''
+      operationId: deleteAccount
+      parameters:
+        -
+          name: accountId
+          in: path
+          description: 'Account id'
+          required: true
+          schema:
+            type: string
+            example: c7817f8f-3539-46c9-a5ec-b85227bb4e07
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Delete success'
+                type: object
+        400:
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Bad request'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Account not found'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Delete unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  '/api/account/{accountId}/info':
+    get:
+      tags:
+        - account
+      summary: 'Get info of a single account'
+      operationId: getAccountInfo
+      parameters:
+        -
+          name: accountId
+          in: path
+          description: 'model id'
+          required: true
+          schema:
+            type: string
+            example: 59e7626e-49bf-4e63-b195-f4d826af8ad8
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AccountInfoResponse'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Account not found'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  /api/account:
+    post:
+      tags:
+        - account
+      summary: 'Create new account'
+      description: ''
+      operationId: createAccount
+      requestBody:
+        description: 'JSON with account data'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountBodyReq'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    properties:
+                      id:
+                        type: string
+                        example: 1a2d4d27-43d1-4450-9ed0-5c4e7b802dae
+                    type: object
+                  message:
+                    type: string
+                    example: 'Account created successfully'
+                type: object
+        400:
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Bad request'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Insert unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  /api/login:
+    post:
+      tags:
+        - auth
+      summary: Login
+      description: 'Login with inserted credentials'
+      operationId: login
+      requestBody:
+        description: 'JSON with account data'
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                username:
+                  type: string
+                  example: super
+                password:
+                  type: string
+                  example: password
+              type: object
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Auth'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Server error'
+                type: object
+  /api/logout:
+    post:
+      tags:
+        - auth
+      summary: Logout
+      description: 'logout with current account'
+      operationId: logout
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items: []
+                  message:
+                    type: string
+                    example: 'Successfully logged out'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: 'Token not provided'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Log out unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  /api/logged:
+    get:
+      tags:
+        - auth
+      summary: Logged
+      description: 'Check if user is logged'
+      operationId: logged
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Logged'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Token not provided'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Log out unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  /api/refresh:
+    post:
+      tags:
+        - auth
+      summary: Refresh
+      description: 'Refresh token of current account'
+      operationId: refresh
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    properties:
+                      status:
+                        type: string
+                        example: success
+                      accountId:
+                        type: string
+                        example: 8a2f56c2-5b5f-4b3f-996c-1774f33415cb
+                      authorization:
+                        properties:
+                          token:
+                            type: string
+                            example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL3JlZnJlc2giLCJpYXQiOjE3MjA0MjgyNjUsImV4cCI6MTcyMTAzMzA2NSwibmJmIjoxNzIwNDI4MjY1LCJqdGkiOiJyaEtabWt2eko0RmZCbDUyIiwic3ViIjoiOGEyZjU2YzItNWI1Zi00YjNmLTk5NmMtMTc3NGYzMzQxNWNiIiwicHJ2IjoiYzhlZTFmYzg5ZTc3NWVjNGM3Mzg2NjdlNWJlMTdhNTkwYjZkNDBmYyIsInJvbGUiOiJiY2IwOTVhYS1iZGU2LTQ1NWEtYTg0MS03NjExYzQzYWZjZWEifQ.A4JRY0cTfsn-aXJFJPPTk16ArAfdNN0FetKDcDpqrS8
+                          type:
+                            type: string
+                            example: bearer
+                        type: object
+                    type: object
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: 'Token not provided'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Refresh unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  '/api/todo/{todoId}/comment/all':
+    get:
+      tags:
+        - comment
+      summary: 'Get comments from specific todo'
+      operationId: getAllTodoComments
+      parameters:
+        -
+          name: todoId
+          in: path
+          description: 'todo id'
+          required: true
+          schema:
+            type: string
+            example: e14b3225-b510-47f1-bed4-bb227696098e
+        -
+          name: limit
+          in: query
+          description: 'Limit of elements'
+          required: false
+          schema:
+            type: integer
+            example: 10
+        -
+          name: page
+          in: query
+          description: 'Current page'
+          required: false
+          schema:
+            type: integer
+            example: 1
+        -
+          name: sortBy
+          in: query
+          description: 'sort by element'
+          required: false
+          schema:
+            type: string
+            example: ''
+        -
+          name: sortValue
+          in: query
+          description: 'sorting type'
+          required: false
+          schema:
+            type: string
+            example: ''
+        -
+          name: filterBy
+          in: query
+          description: 'fields to filter'
+          required: false
+          schema:
+            type: string
+            example: ''
+        -
+          name: filterValue
+          in: query
+          description: 'Values to filter'
+          required: false
+          schema:
+            type: string
+            example: ''
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentsResponse'
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  '/api/comment/{commentId}':
+    get:
+      tags:
+        - comment
+      summary: 'Get data of a single comment'
+      operationId: getComment
+      parameters:
+        -
+          name: commentId
+          in: path
+          description: 'model id'
+          required: true
+          schema:
+            type: string
+            example: 59e7626e-49bf-4e63-b195-f4d826af8ad8
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CommentResponse'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not found'
+                type: object
+      security:
+        -
+          bearerAuth: []
+    put:
+      tags:
+        - comment
+      summary: 'Update a specific comment'
+      description: ''
+      operationId: updateComment
+      parameters:
+        -
+          name: commentId
+          in: path
+          description: 'model id'
+          required: true
+          schema:
+            type: string
+            example: c7817f8f-3539-46c9-a5ec-b85227bb4e07
+      requestBody:
+        description: 'JSON with comment data'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentBodyReq'
+      responses:
+        200:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items: []
+                  message:
+                    type: string
+                    example: 'Update Success'
+                type: object
+        400:
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Bad request'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Inserted model not exists'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not found'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Insert unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+    delete:
+      tags:
+        - comment
+      summary: 'Delete an existing comment'
+      description: ''
+      operationId: deleteComment
+      parameters:
+        -
+          name: commentId
+          in: path
+          description: 'comment id'
+          required: true
+          schema:
+            type: string
+            example: c7817f8f-3539-46c9-a5ec-b85227bb4e07
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Delete success'
+                type: object
+        400:
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Bad request'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not found'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Delete unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  '/api/todo/{todoId}/comment':
+    post:
+      tags:
+        - comment
+      summary: 'Create new comment in a specific todo'
+      description: ''
+      operationId: createComment
+      parameters:
+        -
+          name: todoId
+          in: path
+          description: 'todo id'
+          required: true
+          schema:
+            type: string
+            example: e14b3225-b510-47f1-bed4-bb227696098e
+      requestBody:
+        description: 'JSON with comment data'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentBodyReq'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    properties:
+                      id:
+                        type: string
+                        example: 1a2d4d27-43d1-4450-9ed0-5c4e7b802dae
+                    type: object
+                  message:
+                    type: string
+                    example: 'Insert success'
+                type: object
+        400:
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Bad request'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Insert unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  /api/todo/all:
+    get:
+      tags:
+        - todo
+      summary: 'Get all todos data'
+      operationId: getAllTodos
+      parameters:
+        -
+          name: limit
+          in: query
+          description: 'Limit of elements'
+          required: false
+          schema:
+            type: integer
+            example: 10
+        -
+          name: page
+          in: query
+          description: 'Current page'
+          required: false
+          schema:
+            type: integer
+            example: 1
+        -
+          name: sortBy
+          in: query
+          description: 'sort by element'
+          required: false
+          schema:
+            type: string
+            example: created_at
+        -
+          name: sortValue
+          in: query
+          description: 'sorting type'
+          required: false
+          schema:
+            type: string
+            example: descend
+        -
+          name: filterBy
+          in: query
+          description: 'fields to filter'
+          required: false
+          schema:
+            type: string
+            example: ''
+        -
+          name: filterValue
+          in: query
+          description: 'Values to filter'
+          required: false
+          schema:
+            type: string
+            example: ''
+        -
+          name: start
+          in: query
+          description: 'filter by date: start data'
+          required: false
+          schema:
+            type: string
+            example: ''
+        -
+          name: end
+          in: query
+          description: 'filter by date: end data'
+          required: false
+          schema:
+            type: string
+            example: ''
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TodosResponse'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  /api/todo/shared/all:
+    get:
+      tags:
+        - todo
+      summary: 'Get all shared todos'
+      operationId: getAllSharedTodos
+      parameters:
+        -
+          name: limit
+          in: query
+          description: 'Limit of elements'
+          required: false
+          schema:
+            type: integer
+            example: 10
+        -
+          name: page
+          in: query
+          description: 'Current page'
+          required: false
+          schema:
+            type: integer
+            example: 1
+        -
+          name: sortBy
+          in: query
+          description: 'sort by element'
+          required: false
+          schema:
+            type: string
+            example: created_at
+        -
+          name: sortValue
+          in: query
+          description: 'sorting type'
+          required: false
+          schema:
+            type: string
+            example: descend
+        -
+          name: filterBy
+          in: query
+          description: 'fields to filter'
+          required: false
+          schema:
+            type: string
+            example: ''
+        -
+          name: filterValue
+          in: query
+          description: 'Values to filter'
+          required: false
+          schema:
+            type: string
+            example: ''
+        -
+          name: start
+          in: query
+          description: 'filter by date: start data'
+          required: false
+          schema:
+            type: string
+            example: ''
+        -
+          name: end
+          in: query
+          description: 'filter by date: end data'
+          required: false
+          schema:
+            type: string
+            example: ''
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TodosResponse'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  '/api/todo/{todoId}/accounts/all':
+    get:
+      tags:
+        - todo
+      summary: 'Get all todo accounts'
+      description: 'Get all accounts of a specific todo'
+      operationId: getAllTodoAccounts
+      parameters:
+        -
+          name: todoId
+          in: path
+          description: 'todo id'
+          required: true
+          schema:
+            type: string
+            example: 2588e5ad-0c5c-44e7-a865-a196b067c621
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TodoAccountsResponse'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Todo not found'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  '/api/todo/{todoId}':
+    get:
+      tags:
+        - todo
+      summary: 'Get data of a single todo'
+      operationId: getTodo
+      parameters:
+        -
+          name: todoId
+          in: path
+          description: 'todo id'
+          required: true
+          schema:
+            type: string
+            example: 2588e5ad-0c5c-44e7-a865-a196b067c621
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TodoResponse'
+                  message:
+                    type: string
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Todo not found'
+                type: object
+      security:
+        -
+          bearerAuth: []
+    put:
+      tags:
+        - todo
+      summary: 'Update a specific todo'
+      description: ''
+      operationId: updateTodo
+      parameters:
+        -
+          name: todoId
+          in: path
+          description: 'todo id'
+          required: true
+          schema:
+            type: string
+            example: bf0b6373-b772-4bee-bdfa-88bf5ff092f3
+      requestBody:
+        description: 'JSON with todo data'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoBodyReq'
+      responses:
+        200:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items: []
+                  message:
+                    type: string
+                    example: 'Update Success'
+                type: object
+        400:
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Bad request'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Inserted model not exists'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Todo not found'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Update unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+    delete:
+      tags:
+        - todo
+      summary: 'Delete an existing todo'
+      description: ''
+      operationId: deleteTodo
+      parameters:
+        -
+          name: todoId
+          in: path
+          description: 'todo id'
+          required: true
+          schema:
+            type: string
+            example: bf0b6373-b772-4bee-bdfa-88bf5ff092f3
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Delete success'
+                type: object
+        400:
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Bad request'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Todo not found'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Delete unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+    patch:
+      tags:
+        - todo
+      summary: 'Share a specific todo with other accounts'
+      description: ''
+      operationId: shareTodo
+      parameters:
+        -
+          name: todoId
+          in: path
+          description: 'todo id'
+          required: true
+          schema:
+            type: string
+            example: bf0b6373-b772-4bee-bdfa-88bf5ff092f3
+      requestBody:
+        description: 'JSON with todo data'
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                accounts:
+                  type: array
+                  items:
+                    type: string
+                    example: 40992b3a-3cbd-4d99-80cd-cd351a32324f
+              type: object
+      responses:
+        200:
+          description: Updated
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items: []
+                  message:
+                    type: string
+                    example: 'Update Success'
+                type: object
+        400:
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Bad request'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        404:
+          description: 'Inserted model not exists'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Todo not found'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Update unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+  /api/todo:
+    post:
+      tags:
+        - todo
+      summary: 'Create new todo'
+      description: ''
+      operationId: createTodo
+      requestBody:
+        description: 'JSON with todo data'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoBodyReq'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    properties:
+                      id:
+                        type: string
+                        example: 45ca2e2c-91d1-482c-85bf-f0fc23022808
+                    type: object
+                  message:
+                    type: string
+                    example: 'Insert success'
+                type: object
+        400:
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Bad request'
+                type: object
+        401:
+          description: 'Not Authorized'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        403:
+          description: Forbitten
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Not Authorized'
+                type: object
+        500:
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: 'Insert unsuccess'
+                type: object
+      security:
+        -
+          bearerAuth: []
+components:
+  schemas:
+    sortFilterParams:
+      properties:
+        limit:
+          type: integer
+        page:
+          type: integer
+        sortBy:
+          type: string
+        sortValue:
+          type: string
+        filterBy:
+          type: string
+        filterValue:
+          type: string
+        start:
+          type: string
+        end:
+          type: string
+      type: object
+    AccountResponse:
+      properties:
+        id:
+          type: string
+          example: 59e7626e-49bf-4e63-b195-f4d826af8ad8
+        username:
+          type: string
+          example: agent
+        name:
+          type: string
+          example: Luca
+        surname:
+          type: string
+          example: 'La Porta'
+        email:
+          type: string
+          example: agent@dev.com
+      type: object
+    AccountInfoResponse:
+      properties:
+        name:
+          type: string
+          example: Luca
+        surname:
+          type: string
+          example: 'La Porta'
+      type: object
+    AccountsUsernames:
+      properties:
+        id:
+          type: string
+          example: a6ff9885-6166-4375-979a-bad6e2b4b9be
+        username:
+          type: string
+          example: luca10
+      type: object
+    AccountsResponse:
+      properties:
+        current_page:
+          type: number
+          example: 1
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountResponse'
+        first_page_url:
+          type: string
+          example: 'http://localhost:8000/api/account/all?page=1'
+        from:
+          type: number
+          example: 1
+        last_page:
+          type: number
+          example: 1
+        last_page_url:
+          type: string
+          example: 'http://localhost:8000/api/account/all?page=1'
+        links:
+          type: array
+          items:
+            properties:
+              url:
+                type: string
+                format: nullable
+              label:
+                type: string
+                example: pagination.previous
+              active:
+                type: boolean
+            type: object
+        next_page_url:
+          type: string
+          format: nullable
+        path:
+          type: string
+          example: 'http://localhost:8000/api/account/all'
+        per_page:
+          type: number
+          example: 10
+        prev_page_url:
+          type: string
+          format: nullable
+        to:
+          type: number
+          example: 1
+        total:
+          type: number
+          example: 1
+      type: object
+    AccountBodyReq:
+      properties:
+        username:
+          type: string
+          example: john10
+        name:
+          type: string
+          example: John
+        surname:
+          type: string
+          example: Doe
+        email:
+          type: string
+          example: johndow@email.com
+        password:
+          type: string
+          example: abc1234
+      type: object
+    Auth:
+      properties:
+        status:
+          type: string
+          example: success
+        accountId:
+          type: string
+          example: 8a2f56c2-5b5f-4b3f-996c-1774f33415cb
+        authorization:
+          properties:
+            token:
+              type: string
+              example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzIwNDI3NDE1LCJleHAiOjE3MjEwMzIyMTUsIm5iZiI6MTcyMDQyNzQxNSwianRpIjoiYXlGakZMcFBmaWlZRFV4YSIsInN1YiI6IjhhMmY1NmMyLTViNWYtNGIzZi05OTZjLTE3NzRmMzM0MTVjYiIsInBydiI6ImM4ZWUxZmM4OWU3NzVlYzRjNzM4NjY3ZTViZTE3YTU5MGI2ZDQwZmMiLCJyb2xlIjoiYmNiMDk1YWEtYmRlNi00NTVhLWE4NDEtNzYxMWM0M2FmY2VhIn0.r1SGjTg7GpiJjiN778yU2NKv39c8G4WmMKJAs9lW_5A
+            type:
+              type: string
+              example: bearer
+          type: object
+      type: object
+    Logged:
+      properties:
+        logged:
+          type: boolean
+          example: true
+        account:
+          $ref: '#/components/schemas/AccountResponse'
+      type: object
+    CommentResponse:
+      properties:
+        id:
+          type: string
+          example: 6ca498b0-3fb6-4094-ba16-42728383c587
+        content:
+          type: string
+          example: 'Commento numero uno'
+        created_at:
+          type: string
+          example: '2025-01-18 16:14:44'
+        updated_at:
+          type: string
+          example: '2025-01-18 16:14:45'
+        todo_id:
+          type: string
+          example: 1dcc7661-1251-456a-873c-2aa2028de9fd
+        account_id:
+          type: string
+          example: 8a587029-80a2-4ae9-82e6-4f69f7383e63
+        account_username:
+          type: string
+          example: test
+      type: object
+    CommentsResponse:
+      properties:
+        data:
+          properties:
+            current_page:
+              type: number
+              example: 1
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/CommentResponse'
+            first_page_url:
+              type: string
+              example: 'http://host/request/all?page=1'
+            from:
+              type: number
+              example: 1
+            last_page:
+              type: number
+              example: 1
+            last_page_url:
+              type: string
+              example: 'http://host/request/all?page=1'
+            links:
+              type: array
+              items:
+                properties:
+                  url:
+                    type: string
+                    format: nullable
+                  label:
+                    type: string
+                    example: pagination.previous
+                  active:
+                    type: boolean
+                type: object
+            next_page_url:
+              type: string
+              format: nullable
+            path:
+              type: string
+              example: 'http://host/request/all'
+            per_page:
+              type: number
+              example: 10
+            prev_page_url:
+              type: string
+              format: nullable
+            to:
+              type: number
+              example: 1
+            total:
+              type: number
+              example: 1
+          type: object
+        message:
+          type: string
+      type: object
+    CommentBodyReq:
+      properties:
+        content:
+          type: string
+          example: 'Commento di prova'
+      type: object
+    TodoResponse:
+      properties:
+        id:
+          type: string
+          example: 1dcc7661-1251-456a-873c-2aa2028de9fd
+        title:
+          type: string
+          example: 'Andare in palestra'
+        description:
+          type: string
+          example: 'Ricorda la cintura'
+        note:
+          type: string
+        category:
+          type: string
+          example: hobby
+        checked:
+          type: boolean
+        created_at:
+          type: string
+          example: '2024-10-26 15:40:00'
+        updated_at:
+          type: string
+          example: '2024-10-26 15:40:00'
+        account_id:
+          type: string
+          example: 8a587029-80a2-4ae9-82e6-4f69f7383e63
+        sharedWith:
+          type: array
+          items:
+            properties:
+              id:
+                type: string
+                example: 2d414d58-79d9-4b90-897f-d29889e86b98
+              username:
+                type: string
+                example: account_test
+            type: object
+        isShared:
+          type: boolean
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+      type: object
+    TodoAccountsResponse:
+      properties:
+        id:
+          type: string
+          example: 1dcc7661-1251-456a-873c-2aa2028de9fd
+        username:
+          type: string
+          example: user_00
+      type: object
+    TodosResponse:
+      properties:
+        current_page:
+          type: number
+          example: 1
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TodoResponse'
+        first_page_url:
+          type: string
+          example: 'http://localhost:8000/api/todo/all?page=1'
+        from:
+          type: number
+          example: 1
+        last_page:
+          type: number
+          example: 1
+        last_page_url:
+          type: string
+          example: 'http://localhost:8000/api/todo/all?page=1'
+        links:
+          type: array
+          items:
+            properties:
+              url:
+                type: string
+                format: nullable
+              label:
+                type: string
+                example: pagination.previous
+              active:
+                type: boolean
+            type: object
+        next_page_url:
+          type: string
+          format: nullable
+        path:
+          type: string
+          example: 'http://localhost:8000/api/todo/all'
+        per_page:
+          type: number
+          example: 10
+        prev_page_url:
+          type: string
+          format: nullable
+        to:
+          type: number
+          example: 1
+        total:
+          type: number
+          example: 1
+      type: object
+    TodoBodyReq:
+      properties:
+        title:
+          type: string
+          example: 'Todo di prova'
+        description:
+          type: string
+          example: 'descrizione di prova'
+        note:
+          type: string
+          example: 'nessuna nota'
+        category:
+          type: string
+          example: importanti
+        checked:
+          type: boolean
+      type: object
+  securitySchemes:
+    bearerAuth:
+      type: http
+      bearerFormat: JWT
+      scheme: bearer
+tags:
+  -
+    name: params
+    description: params
+  -
+    name: account
+    description: account
+  -
+    name: auth
+    description: auth
+  -
+    name: comment
+    description: comment
+  -
+    name: todo
+    description: todo

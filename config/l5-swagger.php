@@ -53,6 +53,10 @@ return [
                     base_path('app/Swagger'),
                 ],
             ],
+            /*
+            * add yaml copy to swagger docs
+            */
+            'generate_yaml_copy' => true,
         ],
     ],
     'defaults' => [

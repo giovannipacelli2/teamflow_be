@@ -1,86 +1,24 @@
-# **TeamFlow API:** 
-## **Scopo:** 
+---
+title: TeamFlow v1.0
+language_tabs:
+  - javascript: JavaScript
+  - php: PHP
+language_clients:
+  - javascript: ""
+  - php: ""
+toc_footers: []
+includes: []
+search: true
+highlight_theme: darkula
+headingLevel: 2
 
-* Fornire API per gestione dei dati nel database.
-* Implementazione funzioni CRUD per gestire utenti e task
-</br>
-
-# **Linguaggi e framework utilizzati:** 
-
-* Php, MySql, Laravel.
-* Gestione DB: Postgres
-
-</br>
-
-# **Logica applicativa:** 
-
-Il back-end funziona come RESTful API, sono definiti dei modelli (entità) e le rotte delle api richiamamo i controller che eseguono azioni specifiche.
-
-## Cartella `./app`
-
-* `Exception` contiene `JsonRespException` che quando viene lanciata ritorna una risposta di errore in formato json
-* `Http` contiene tutti i controller
-* `Include` contiene `ApiFunctions` che possiede una serie di metodi statici, viene utilizzata come libreria di funzioni. `SortFilter` gestisce il sorting ed il filtering nelle query
-* `Models` contiene tutti i modelli Eloquent
-* `Policies` contiene le policies che gestiscono gli scopes dei vari controllers
-* `Rules` contiene le funzioni di validazione utili a verificare i dati della body request
-* `Services` contiene i services iniettabili nei controller
-* `Swagger` contiene tutta la documentazione swagger
-* `Translations` contiene a sua volta `messages` con l'insieme di messaggi usati per dare descrizioni specifiche in determinate risposte. `models` contiene i messaggi utilizzati dal validator di Laravel.
-Il file `Translations` utilizzato per associare correttamente un modello ad un file di traduzione.
-
-## Cartella `./database`
-
-* `migrations` contiene tutti i file di migrazione per installare correttamente il db
-* `seeders` contiene i seed questi importano in tabelle specifiche un set di dati di prova
-
-## Cartella `./routes`
-
-* file `api`contiene tutte le rotte utilizzate come end-point.
-
-</br>
-
-# **Prerequisiti sviluppo:** 
-
-* Aver installato il package manager `Composer`
-* Aver installato Postgres
-* Creare un DB ed inserire tutte le credenziali nel file `.env` come nel file di esempio `.env.example`
-
-</br>
-
-# **Installazione e sviluppo:** 
-
-* Installare le dipendenze tramite il comando
-
-````
-composer install
-
-````
-* Lanciare le migrations
-
-````
-php artisan migrate
-
-````
-* Lanciare i seeders
-
-````
-php artisan db:seed
-
-````
-
-In fine è possibile lanciare il server con il comando:
-
-````
-php artisan serve
-
-````
-
-
+---
 
 <!-- Generator: Widdershins v4.0.1 -->
 
 <h1 id="teamflow">TeamFlow v1.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
 
 Base URLs:
 

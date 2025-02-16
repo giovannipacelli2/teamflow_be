@@ -4,7 +4,9 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "serve": "php artisan serve --host 0.0.0.0"
+        "serve": "php artisan serve --host 0.0.0.0",
+        "md-docs2": "widdershins -c widdershins.json ./storage/api-docs/api-docs.yaml -o ./storage/api-docs/README.md",
+        "md-docs": "widdershins --search true --code true --shallowSchemas true --resolve true --language_tabs 'javascript:JavaScript' 'php:PHP' --summary ./storage/api-docs/api-docs.yaml -o ./storage/api-docs/README.md"
     },
     "devDependencies": {
         "autoprefixer": "^10.4.20",

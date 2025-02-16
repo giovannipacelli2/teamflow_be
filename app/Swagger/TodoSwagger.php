@@ -1089,6 +1089,14 @@ namespace App\Swagger;
  *         property="isShared", 
  *         type="boolean", 
  *     ),
+ *     @OA\Property(
+ *        property="comments", 
+ *        type="array",
+ *        @OA\Items(
+ *           type="object", 
+ *           ref="#/components/schemas/CommentResponse"
+ *        ),   
+ *     ),  
  *   },
  * ),
  * 

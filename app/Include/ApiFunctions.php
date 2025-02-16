@@ -2,6 +2,7 @@
 
 namespace App\Include;
 
+use App\Exceptions\JsonRespException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ResponseJson;
 use Illuminate\Support\Facades\Validator;
@@ -9,6 +10,52 @@ use Carbon\Carbon;
 
 class ApiFunctions
 {
+
+    /*--------------------------------TEXT-PROCESSING----------------------------------*/
+
+    /**
+     * @param array | string $data
+     * @param "lower" | "upper" | "ucfirst" $trasform
+     * @param array{string} $associativeKeys
+    */
+    public static function textProcessing($data, $transform = "lower", $associativeKeys=[])
+    {
+        $fn = function($text) use ($transform){
+            $text = strtolower(trim($text));
+
+            switch($transform){
+                case 'lower':
+                    return $text;
+                case 'upper':
+                    return strtoupper($text);
+                case 'ucfirst':
+                    return ucfirst($text);
+                default:
+                    return $text;
+            }
+        };
+
+        if (is_array($data)) {
+
+            if (count($associativeKeys)>0){
+                foreach($associativeKeys as $key){
+
+                    if (isset($data[$key])){
+                        $data[$key] = $fn($data[$key]);
+                    }
+                }
+
+                return $data;
+            }
+
+            return array_map($fn, $data);
+        }
+        elseif (is_string($data)) {
+            return $fn($data);
+        }
+
+        return false;
+    }
 
     /*--------------------------------SERIALIZE-FLOATS---------------------------------*/
 
@@ -158,6 +205,49 @@ class ApiFunctions
         ];
 
     }
+
+    /*--------------LARAVEL-SIMPLE-VALIDATION-----------------*/
+    
+    public static function simpleValidate(Request $request, $rules, $messages=[]) : array {
+
+
+        $necessaryFiels = array_keys($rules);
+
+        $validator = null;
+
+        if (count($messages) == 0) {
+            $validator = validator($request->all(), $rules);
+        } else {
+            $validator = validator($request->all(), $rules, $messages);
+        }
+
+        // Manage filter errors
+
+        if ($validator->fails()) {
+
+            // STRINGIFY ERROR MESSAGES
+
+            $errors = $validator->errors();
+
+            $msgsArr = [];
+
+            foreach($errors->messages() as $key=>$value){
+                $msgs = implode('. ',$value);
+                array_push($msgsArr, $key . ': ' . $msgs);
+            }
+
+            $msgsStr = implode('. ', $msgsArr);
+
+            throw new JsonRespException($msgsStr, 400, null, $errors);
+
+            return $result;
+        }
+
+        // returns validated data
+
+        return (array) $request->only(...$necessaryFiels);
+    }
+    
 
     /*-----------------LARAVEL-VALIDATION---------------------*/
     
