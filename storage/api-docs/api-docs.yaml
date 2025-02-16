@@ -4,7 +4,7 @@ info:
   version: '1.0'
 servers:
   -
-    url: 'http://teamfloa-be.gplans.it'
+    url: 'http://teamflow-be.gplans.it'
     description: 'API Server'
 paths:
   /:

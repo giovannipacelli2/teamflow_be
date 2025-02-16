@@ -6,7 +6,7 @@
     },
     "servers": [
         {
-            "url": "http://teamfloa-be.gplans.it",
+            "url": "http://teamflow-be.gplans.it",
             "description": "API Server"
         }
     ],

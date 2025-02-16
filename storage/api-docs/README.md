@@ -22,7 +22,7 @@ headingLevel: 2
 
 Base URLs:
 
-* <a href="http://teamfloa-be.gplans.it">http://teamfloa-be.gplans.it</a>
+* <a href="http://teamflow-be.gplans.it">http://teamflow-be.gplans.it</a>
 
 # Authentication
 

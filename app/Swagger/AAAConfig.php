@@ -10,9 +10,9 @@ namespace App\Swagger;
  *  ),
  *  
  *  @OA\Server(
- *     url="http://teamfloa-be.gplans.it",
+ *     url="http://teamflow-be.gplans.it",
  *     url="http://localhost:8000",
- *         description="API Server"
+ *     description="API Server"
  * ),
  * 
  *  @OA\SecurityScheme(
