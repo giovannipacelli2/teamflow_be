@@ -5,14 +5,14 @@ namespace App\Swagger;
 /**
  *
  *  @OA\Info(
- *      title="S2I final", 
- *      version="0.8",
+ *      title="TeamFlow", 
+ *      version="1.0",
  *  ),
  *  
  *  @OA\Server(
- *     url="http://192.168.169.128:8000",
+ *     url="http://teamfloa-be.gplans.it",
  *     url="http://localhost:8000",
- *     description="API Server"
+ *         description="API Server"
  * ),
  * 
  *  @OA\SecurityScheme(
