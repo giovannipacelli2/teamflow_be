@@ -84,7 +84,7 @@ php artisan serve
 
 Base URLs:
 
-* <a href="https://teamflow-be.gplans.it">https://teamflow-be.gplans.it</a>
+* <a href="https://teamflow-be.gapp.uno">https://teamflow-be.gapp.uno</a>
 
 # Authentication
 
