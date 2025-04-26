@@ -169,6 +169,9 @@ class ApiFunctions
     /*---------------FILTER-ENTITY-INSTANCE-------------------*/
 
     public static function fiterInstance(array $filterByArr, array $filterValueArr, $instance){
+        $connection = env('DB_CONNECTION', 'pgsql');
+
+        $like = $connection === 'pgsql' ? 'ILIKE' : 'LIKE'; 
 
         if ( count($filterByArr) > 0 && count($filterValueArr) > 0 ){
 
@@ -182,10 +185,10 @@ class ApiFunctions
 
                 if ($fields && in_array($filterByArr[$i], $fields)){
                         
-                    $res = $instance->where($filterByArr[$i], 'ILIKE', '%'. $filterValueArr[$i].'%');
+                    $res = $instance->where($filterByArr[$i], $like, '%'. $filterValueArr[$i].'%');
                 } else if (!$fields){
 
-                    $res = $instance->where($filterByArr[$i], 'ILIKE', '%'. $filterValueArr[$i].'%');
+                    $res = $instance->where($filterByArr[$i], $like, '%'. $filterValueArr[$i].'%');
                 }
             }                   
                     
