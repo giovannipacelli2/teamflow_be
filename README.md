@@ -7,7 +7,7 @@
 
 # **Linguaggi e framework utilizzati:** 
 
-* Php, MySql, Laravel.
+* Php, Laravel.
 * Gestione DB: Postgres
 
 </br>
